@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Toast;
 
-import ledkis.module.picturecomparator.AirHockeyRenderer;
+import ledkis.module.picturecomparator.PictureComparatorRenderer;
 
 public class AirHockeyActivity extends Activity {
     /**
@@ -46,7 +46,7 @@ public class AirHockeyActivity extends Activity {
                   || Build.MODEL.contains("Emulator")
                   || Build.MODEL.contains("Android SDK built for x86")));
 
-        final AirHockeyRenderer airHockeyRenderer = new AirHockeyRenderer(this);
+        final PictureComparatorRenderer pictureComparatorRenderer = new PictureComparatorRenderer(this);
         
         if (supportsEs2) {
             // ...
@@ -54,7 +54,7 @@ public class AirHockeyActivity extends Activity {
             glSurfaceView.setEGLContextClientVersion(2);
 
             // Assign our renderer.
-            glSurfaceView.setRenderer(airHockeyRenderer);
+            glSurfaceView.setRenderer(pictureComparatorRenderer);
             rendererSet = true;
         } else {
             /*
@@ -92,7 +92,7 @@ public class AirHockeyActivity extends Activity {
                         glSurfaceView.queueEvent(new Runnable() {
                             @Override
                             public void run() {
-                                airHockeyRenderer.handleTouchPress(
+                                pictureComparatorRenderer.handleTouchPress(
                                     normalizedX, normalizedY);
                             }
                         });
@@ -100,7 +100,7 @@ public class AirHockeyActivity extends Activity {
                         glSurfaceView.queueEvent(new Runnable() {
                             @Override
                             public void run() {
-                                airHockeyRenderer.handleTouchDrag(
+                                pictureComparatorRenderer.handleTouchDrag(
                                     normalizedX, normalizedY);
                             }
                         });

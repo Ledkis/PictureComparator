@@ -32,7 +32,7 @@ import ledkis.module.picturecomparator.util.Geometry.Vector;
 import ledkis.module.picturecomparator.util.MatrixHelper;
 import ledkis.module.picturecomparator.util.TextureHelper;
 
-public class AirHockeyRenderer implements Renderer {    
+public class PictureComparatorRenderer implements Renderer {
     private final Context context;
 
     private final float[] projectionMatrix = new float[16];
@@ -64,7 +64,7 @@ public class AirHockeyRenderer implements Renderer {
     private Point puckPosition;
     private Vector puckVector;
 
-    public AirHockeyRenderer(Context context) {
+    public PictureComparatorRenderer(Context context) {
         this.context = context;
     }
 
