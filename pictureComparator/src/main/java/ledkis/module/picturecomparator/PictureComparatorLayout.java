@@ -65,6 +65,12 @@ public class PictureComparatorLayout {
                             final float normalizedY =
                                     -((event.getY() / (float) v.getHeight()) * 2 - 1);
 
+                            //  Since  Android’s  GLSurfaceView  does  rendering  in  a  background  thread,  we  must  be
+                            //  careful to call OpenGL only within the rendering thread, and Android UI calls only
+                            //  within Android’s main thread. We can call queueEvent() on our instance of GLSurfaceView
+                            //  to post a Runnable on the background rendering thread. From within the rendering
+                            //  thread, we can call runOnUIThread() on our activity to post events on the main thread.
+
                             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                                 glSurfaceView.queueEvent(new Runnable() {
                                     @Override
@@ -91,7 +97,7 @@ public class PictureComparatorLayout {
                 });
     }
 
-    public boolean supportsEs2(){
+    public boolean supportsEs2() {
         // Check if the system supports OpenGL ES 2.0.
         ActivityManager activityManager =
                 (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
