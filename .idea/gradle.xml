@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/pictureComparator" />
+            <option value="$PROJECT_DIR$/pictureComparator-example" />
           </set>
         </option>
       </GradleProjectSettings>

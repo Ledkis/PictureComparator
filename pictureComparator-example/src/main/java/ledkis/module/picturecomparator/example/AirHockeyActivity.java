@@ -1,12 +1,4 @@
-/***
- * Excerpted from "OpenGL ES for Android",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material, 
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose. 
- * Visit http://www.pragmaticprogrammer.com/titles/kbogla for more book information.
-***/
-package ledkis.module.picturecomparator;
+package ledkis.module.picturecomparator.example;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -19,6 +11,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Toast;
+
+import ledkis.module.picturecomparator.AirHockeyRenderer;
 
 public class AirHockeyActivity extends Activity {
     /**

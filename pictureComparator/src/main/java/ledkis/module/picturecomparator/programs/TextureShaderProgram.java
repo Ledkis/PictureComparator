@@ -1,11 +1,3 @@
-/***
- * Excerpted from "OpenGL ES for Android",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material, 
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose. 
- * Visit http://www.pragmaticprogrammer.com/titles/kbogla for more book information.
-***/
 package ledkis.module.picturecomparator.programs;
 
 import static android.opengl.GLES20.GL_TEXTURE0;
@@ -20,7 +12,6 @@ import android.content.Context;
 
 import ledkis.module.picturecomparator.R;
 
-
 public class TextureShaderProgram extends ShaderProgram {
     // Uniform locations
     private final int uMatrixLocation;
@@ -31,8 +22,7 @@ public class TextureShaderProgram extends ShaderProgram {
     private final int aTextureCoordinatesLocation;
 
     public TextureShaderProgram(Context context) {
-        super(context, R.raw.texture_vertex_shader,
-            R.raw.texture_fragment_shader);
+        super(context, R.raw.texture_vertex_shader, R.raw.texture_fragment_shader);
 
         // Retrieve uniform locations for the shader program.
         uMatrixLocation = glGetUniformLocation(program, U_MATRIX);

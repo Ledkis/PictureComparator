@@ -1,1 +1,1 @@
-include ':pictureComparator'
+include ':pictureComparator',  ':pictureComparator-example'
