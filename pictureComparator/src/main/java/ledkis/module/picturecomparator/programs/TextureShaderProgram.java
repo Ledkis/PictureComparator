@@ -1,5 +1,9 @@
 package ledkis.module.picturecomparator.programs;
 
+import android.content.Context;
+
+import ledkis.module.picturecomparator.R;
+
 import static android.opengl.GLES20.GL_TEXTURE0;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.glActiveTexture;
@@ -8,9 +12,6 @@ import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
 import static android.opengl.GLES20.glUniform1i;
 import static android.opengl.GLES20.glUniformMatrix4fv;
-import android.content.Context;
-
-import ledkis.module.picturecomparator.R;
 
 public class TextureShaderProgram extends ShaderProgram {
     // Uniform locations
@@ -26,8 +27,7 @@ public class TextureShaderProgram extends ShaderProgram {
 
         // Retrieve uniform locations for the shader program.
         uMatrixLocation = glGetUniformLocation(program, U_MATRIX);
-        uTextureUnitLocation = glGetUniformLocation(program,
-            U_TEXTURE_UNIT);
+        uTextureUnitLocation = glGetUniformLocation(program, U_TEXTURE_UNIT);
         
         // Retrieve attribute locations for the shader program.
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
