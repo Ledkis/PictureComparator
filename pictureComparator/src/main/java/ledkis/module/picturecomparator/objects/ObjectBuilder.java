@@ -3,10 +3,10 @@ package ledkis.module.picturecomparator.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import ledkis.module.picturecomparator.util.Geometry;
-import ledkis.module.picturecomparator.util.Geometry.Circle;
-import ledkis.module.picturecomparator.util.Geometry.Cylinder;
-import ledkis.module.picturecomparator.util.Geometry.Point;
+import ledkis.module.picturecomparator.util.Geometry2D.Rect2D;
+import ledkis.module.picturecomparator.util.Geometry3D;
+import ledkis.module.picturecomparator.util.Geometry3D.Circle3D;
+import ledkis.module.picturecomparator.util.Geometry3D.Cylinder;
 
 import static android.opengl.GLES20.GL_TRIANGLE_FAN;
 import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
@@ -29,65 +29,13 @@ class ObjectBuilder {
         }
     }
 
-    static GeneratedData createPuck(Cylinder puck, int numPoints) {
-        int size = sizeOfCircleInVertices(numPoints)
-                 + sizeOfOpenCylinderInVertices(numPoints);
-        
-        ObjectBuilder builder = new ObjectBuilder(size);
 
-        Circle puckTop = new Circle(
-            puck.center.translateY(puck.height / 2f),
-            puck.radius);
-        
-        builder.appendCircle(puckTop, numPoints);
-        builder.appendOpenCylinder(puck, numPoints);
-
-        return builder.build();
-    }
-
-    static GeneratedData createRectFrame(Geometry.Rect rect) {
+    static GeneratedData createRect2DFrame(Rect2D rect2D) {
         ObjectBuilder builder = new ObjectBuilder(6);
-        builder.appendRect(rect);
+        builder.appendRect2D(rect2D);
         return builder.build();
     }
 
-
-    static GeneratedData createMallet(
-        Point center, float radius, float height, int numPoints) {
-        int size = sizeOfCircleInVertices(numPoints) * 2
-                 + sizeOfOpenCylinderInVertices(numPoints) * 2;
-        
-        ObjectBuilder builder = new ObjectBuilder(size);                                      
-        
-        // First, generate the mallet base.
-        float baseHeight = height * 0.25f;
-        
-        Circle baseCircle = new Circle(
-            center.translateY(-baseHeight), 
-            radius);
-        Cylinder baseCylinder = new Cylinder(
-            baseCircle.center.translateY(-baseHeight / 2f), 
-            radius, baseHeight);
-
-        builder.appendCircle(baseCircle, numPoints);
-        builder.appendOpenCylinder(baseCylinder, numPoints);
-                
-        // Now generate the mallet handle.
-        float handleHeight = height * 0.75f;
-        float handleRadius = radius / 3f;
-        
-        Circle handleCircle = new Circle(
-            center.translateY(height * 0.5f), 
-            handleRadius);        
-        Cylinder handleCylinder = new Cylinder(
-            handleCircle.center.translateY(-handleHeight / 2f),
-            handleRadius, handleHeight);                
-
-        builder.appendCircle(handleCircle, numPoints);
-        builder.appendOpenCylinder(handleCylinder, numPoints);
-
-        return builder.build();
-    }    
 
     private static int sizeOfCircleInVertices(int numPoints) {
         return 1 + (numPoints + 1);
@@ -105,39 +53,75 @@ class ObjectBuilder {
         vertexData = new float[sizeInVertices * FLOATS_PER_VERTEX];
     }
 
-    private void appendRect(Geometry.Rect rect) {
+    private void appendRect2D(Rect2D rect2D) {
 
         // Center point of fan
-        vertexData[offset++] = rect.center.x;
-        vertexData[offset++] = rect.center.y;
-        vertexData[offset++] = rect.center.z;
+        vertexData[offset++] = rect2D.center.x;
+        vertexData[offset++] = rect2D.center.y;
 
         // 4.2     Introducing Triangle Fans
 
         // position 2
-        vertexData[offset++] = -rect.width / 2;
-        vertexData[offset++] = -rect.height / 2;
-        vertexData[offset++] = rect.center.z;
+        vertexData[offset++] = -rect2D.width / 2;
+        vertexData[offset++] = -rect2D.height / 2;
 
         // position 3
-        vertexData[offset++] = rect.width / 2;
-        vertexData[offset++] = -rect.height / 2;
-        vertexData[offset++] = rect.center.z;
+        vertexData[offset++] = rect2D.width / 2;
+        vertexData[offset++] = -rect2D.height / 2;
 
         // position 4
-        vertexData[offset++] = rect.width / 2;
-        vertexData[offset++] = rect.height / 2;
-        vertexData[offset++] = rect.center.z;
+        vertexData[offset++] = rect2D.width / 2;
+        vertexData[offset++] = rect2D.height / 2;
 
         // position 5
-        vertexData[offset++] = -rect.width / 2;
-        vertexData[offset++] = rect.height / 2;
-        vertexData[offset++] = rect.center.z;
+        vertexData[offset++] = -rect2D.width / 2;
+        vertexData[offset++] = rect2D.height / 2;
 
         // position 6
-        vertexData[offset++] = -rect.width / 2;
-        vertexData[offset++] = -rect.height / 2;
-        vertexData[offset++] = rect.center.z;
+        vertexData[offset++] = -rect2D.width / 2;
+        vertexData[offset++] = -rect2D.height / 2;
+
+        drawList.add(new DrawCommand() {
+            @Override
+            public void draw() {
+                glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
+            }
+        });
+    }
+
+    private void appendRect3D(Geometry3D.Rect3D rect3D) {
+
+        // Center point of fan
+        vertexData[offset++] = rect3D.center.x;
+        vertexData[offset++] = rect3D.center.y;
+        vertexData[offset++] = rect3D.center.z;
+
+        // 4.2     Introducing Triangle Fans
+
+        // position 2
+        vertexData[offset++] = -rect3D.width / 2;
+        vertexData[offset++] = -rect3D.height / 2;
+        vertexData[offset++] = rect3D.center.z;
+
+        // position 3
+        vertexData[offset++] = rect3D.width / 2;
+        vertexData[offset++] = -rect3D.height / 2;
+        vertexData[offset++] = rect3D.center.z;
+
+        // position 4
+        vertexData[offset++] = rect3D.width / 2;
+        vertexData[offset++] = rect3D.height / 2;
+        vertexData[offset++] = rect3D.center.z;
+
+        // position 5
+        vertexData[offset++] = -rect3D.width / 2;
+        vertexData[offset++] = rect3D.height / 2;
+        vertexData[offset++] = rect3D.center.z;
+
+        // position 6
+        vertexData[offset++] = -rect3D.width / 2;
+        vertexData[offset++] = -rect3D.height / 2;
+        vertexData[offset++] = rect3D.center.z;
 
 
         drawList.add(new DrawCommand() {
@@ -148,14 +132,14 @@ class ObjectBuilder {
         });
     }
 
-    private void appendCircle(Circle circle, int numPoints) {
+    private void appendCircle(Circle3D circle3D, int numPoints) {
         final int startVertex = offset / FLOATS_PER_VERTEX;
         final int numVertices = sizeOfCircleInVertices(numPoints);
 
         // Center point of fan
-        vertexData[offset++] = circle.center.x;
-        vertexData[offset++] = circle.center.y;
-        vertexData[offset++] = circle.center.z;
+        vertexData[offset++] = circle3D.center.x;
+        vertexData[offset++] = circle3D.center.y;
+        vertexData[offset++] = circle3D.center.z;
 
         // Fan around center point. <= is used because we want to generate
         // the point at the starting angle twice to complete the fan.
@@ -164,15 +148,15 @@ class ObjectBuilder {
                   ((float) i / (float) numPoints)
                 * ((float) Math.PI * 2f);
             
-            vertexData[offset++] = 
-                  circle.center.x 
-                + circle.radius * (float) Math.cos(angleInRadians);
+            vertexData[offset++] =
+                    circle3D.center.x
+                            + circle3D.radius * (float) Math.cos(angleInRadians);
+
+            vertexData[offset++] = circle3D.center.y;
             
-            vertexData[offset++] = circle.center.y;
-            
-            vertexData[offset++] = 
-                  circle.center.z 
-                + circle.radius * (float) Math.sin(angleInRadians);
+            vertexData[offset++] =
+                    circle3D.center.z
+                            + circle3D.radius * (float) Math.sin(angleInRadians);
         }
 
         drawList.add(new DrawCommand() {

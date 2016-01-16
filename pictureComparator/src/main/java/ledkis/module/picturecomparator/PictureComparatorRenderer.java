@@ -2,65 +2,38 @@ package ledkis.module.picturecomparator;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
-import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import ledkis.module.picturecomparator.objects.Mallet;
-import ledkis.module.picturecomparator.objects.Puck;
-import ledkis.module.picturecomparator.objects.Table;
 import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
 import ledkis.module.picturecomparator.programs.ColorShaderProgram;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
-import ledkis.module.picturecomparator.util.Geometry;
-import ledkis.module.picturecomparator.util.Geometry.Plane;
-import ledkis.module.picturecomparator.util.Geometry.Point;
-import ledkis.module.picturecomparator.util.Geometry.Ray;
-import ledkis.module.picturecomparator.util.Geometry.Vector;
-import ledkis.module.picturecomparator.util.MatrixHelper;
+import ledkis.module.picturecomparator.util.Geometry2D;
+import ledkis.module.picturecomparator.util.Geometry2D.Point2D;
+import ledkis.module.picturecomparator.util.Geometry2D.Rect2D;
 import ledkis.module.picturecomparator.util.TextureHelper;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glViewport;
-import static android.opengl.Matrix.invertM;
 import static android.opengl.Matrix.multiplyMM;
-import static android.opengl.Matrix.multiplyMV;
-import static android.opengl.Matrix.rotateM;
+import static android.opengl.Matrix.orthoM;
 import static android.opengl.Matrix.setIdentityM;
-import static android.opengl.Matrix.setLookAtM;
 import static android.opengl.Matrix.translateM;
 
 public class PictureComparatorRenderer implements Renderer {
     private final Context context;
 
+    private static final float MIN_X = -1f;
+    private static final float MAX_X = 1f;
+    private static final float MIN_Y = -1f;
+    private static final float MAX_Y = 1f;
+
     private final float[] projectionMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
-    private final float[] viewMatrix = new float[16];
-    private final float[] viewProjectionMatrix = new float[16];
-    private final float[] invertedViewProjectionMatrix = new float[16];
-    private final float[] modelViewProjectionMatrix = new float[16];
-
-    // https://github.com/GGist/Android-FlightSimulator/blob/master/src/com/flightsimulator/world/Camera.java
-    // https://github.com/jayway/OpenGL-ES-2.0-Lab/blob/master/lab_01/solution/src/com/jayway/gles20/Camera.java
-    /**
-     * The eye postion
-     */
-    private final float[] eye = {0, 1f, 2f};
-    /**
-     * The center position
-     */
-    private final float[] center = {0, 0f, 0f};
-    /**
-     * The up vector
-     */
-    private final float[] up = {0f, 1f, 0f};
-
-    private Table table;
-    private Mallet mallet;
-    private Puck puck;
+    private final float[] modelProjectionMatrix = new float[16];
 
     private TextureRect2DFrameObject pictureFrame;
 
@@ -69,23 +42,9 @@ public class PictureComparatorRenderer implements Renderer {
 
     private int texture;
 
-    private boolean malletPressed = false;
-    private Point blueMalletPosition;
-    private Point previousBlueMalletPosition;
-
     private boolean pictureFrameSelected = false;
-    private Point pictureFramePosition;
-    private Point previousPictureFramePosition;
-    
-    private final float leftBound = -0.5f;
-    private final float rightBound = 0.5f;
-    private final float farBound = -0.8f;
-    private final float nearBound = 0.8f;
-    
-
-    
-    private Point puckPosition;
-    private Vector puckVector;
+    private Point2D pictureFramePosition;
+    private Point2D previousPictureFramePosition;
 
     public PictureComparatorRenderer(Context context) {
         this.context = context;
@@ -93,175 +52,46 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
 
-//        Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
-//
-//        // Now test if this ray intersects with the mallet by creating a
-//        // bounding sphere that wraps the mallet.
-//        Sphere malletBoundingSphere = new Sphere(new Point(
-//                blueMalletPosition.x,
-//                blueMalletPosition.y,
-//                blueMalletPosition.z),
-//                mallet.height / 2f);
-//
-//        // If the ray intersects (if the user touched a part of the screen that
-//        // intersects the mallet's bounding sphere), then set malletPressed =
-//        // true.
-//        malletPressed = Geometry.intersects(malletBoundingSphere, ray);
-
-        Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
-
-        Geometry.Rect pictureFrameBounding = new Geometry.Rect(new Point(
-                pictureFramePosition.x,
-                pictureFramePosition.y,
-                pictureFramePosition.z),
-                0.2f, 0.2f);
-
-        pictureFrameSelected = Geometry.intersects(pictureFrameBounding, ray);
-
-        Log.d("XXX", "pictureFrameSelected: " + pictureFrameSelected);
+        Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
+        Rect2D pictureFrameBounding = pictureFrame.getRect2D().moveTo(pictureFramePosition);
+        pictureFrameSelected = Geometry2D.intersects(pictureFrameBounding, touchedPoint);
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
 
-//        if (malletPressed) {
-//            Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
-//            // Define a plane representing our air hockey table.
-//            Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
-//            // Find out where the touched point intersects the plane
-//            // representing our table. We'll move the mallet along this plane.
-//            Point touchedPoint = Geometry.intersectionPoint(ray, plane);
-//            // Clamp to bounds
-//
-//            previousBlueMalletPosition = blueMalletPosition;
-//            /*
-//            blueMalletPosition =
-//                new Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
-//            */
-//            // Clamp to bounds
-//            blueMalletPosition = new Point(
-//                    clamp(touchedPoint.x,
-//                            leftBound + mallet.radius,
-//                            rightBound - mallet.radius),
-//                    mallet.height / 2f,
-//                    clamp(touchedPoint.z,
-//                            0f + mallet.radius,
-//                            nearBound - mallet.radius));
-//
-//            // Now test if mallet has struck the puck.
-//            float distance =
-//                    Geometry.vectorBetween(blueMalletPosition, puckPosition).length();
-//
-//            if (distance < (puck.radius + mallet.radius)) {
-//                // The mallet has struck the puck. Now send the puck flying
-//                // based on the mallet velocity.
-//                puckVector = Geometry.vectorBetween(
-//                        previousBlueMalletPosition, blueMalletPosition);
-//            }
-//        }
-
         if (pictureFrameSelected) {
-            Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
-            // Define a plane representing our air hockey table.
-            Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
-            // Find out where the touched point intersects the plane
-            // representing our table. We'll move the mallet along this plane.
-            Point touchedPoint = Geometry.intersectionPoint(ray, plane);
-            // Clamp to bounds
 
             previousPictureFramePosition = pictureFramePosition;
+            Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
 
-            pictureFramePosition = new Point(
+            pictureFramePosition = new Point2D(
                     clamp(touchedPoint.x,
-                            leftBound + pictureFrame.width / 2,
-                            rightBound - pictureFrame.width / 2),
-                    0f,
-                    clamp(touchedPoint.z,
-                            0f + pictureFrame.width / 2,
-                            nearBound - pictureFrame.width / 2));
-
+                            MIN_X + pictureFrame.width / 2,
+                            MAX_X - pictureFrame.width / 2),
+                    clamp(touchedPoint.y,
+                            MIN_Y + pictureFrame.height / 2,
+                            MAX_Y - pictureFrame.height / 2));
         }
-    }
-
-    private Ray convertNormalized2DPointToRay(
-        float normalizedX, float normalizedY) {
-        // We'll convert these normalized device coordinates into world-space
-        // coordinates. We'll pick a point on the near and far planes, and draw a
-        // line between them. To do this transform, we need to first multiply by
-        // the inverse matrix, and then we need to undo the perspective divide.
-        final float[] nearPointNdc = {normalizedX, normalizedY, -1, 1};
-        final float[] farPointNdc =  {normalizedX, normalizedY,  1, 1};
-
-        final float[] nearPointWorld = new float[4];
-        final float[] farPointWorld = new float[4];
-
-        multiplyMV(
-            nearPointWorld, 0, invertedViewProjectionMatrix, 0, nearPointNdc, 0);
-        multiplyMV(
-            farPointWorld, 0, invertedViewProjectionMatrix, 0, farPointNdc, 0);
-
-        // Why are we dividing by W? We multiplied our vector by an inverse
-        // matrix, so the W value that we end up is actually the *inverse* of
-        // what the projection matrix would create. By dividing all 3 components
-        // by W, we effectively undo the hardware perspective divide.
-        divideByW(nearPointWorld);
-        divideByW(farPointWorld);
-
-        // We don't care about the W value anymore, because our points are now
-        // in world coordinates.
-        Point nearPointRay =
-            new Point(nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]);
-
-        Point farPointRay =
-            new Point(farPointWorld[0], farPointWorld[1], farPointWorld[2]);
-
-        return new Ray(nearPointRay,
-                       Geometry.vectorBetween(nearPointRay, farPointRay));
-    }
-
-    
-    private void divideByW(float[] vector) {
-        vector[0] /= vector[3];
-        vector[1] /= vector[3];
-        vector[2] /= vector[3];
     }
 
     private float clamp(float value, float min, float max) {
         return Math.min(max, Math.max(value, min));
     }
 
-    private void positionTableInScene() {
-        // The table is defined in terms of X & Y coordinates, so we rotate it
-        // 90 degrees to lie flat on the XZ plane.
-        setIdentityM(modelMatrix, 0);
-        rotateM(modelMatrix, 0, -90f, 1f, 0f, 0f);
-        multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix,
-                0, modelMatrix, 0);
-    }
-
     // The mallets and the puck are positioned on the same plane as the table.
-    private void positionObjectInScene(float x, float y, float z) {
+    private void positionObject2DInScene(float x, float y) {
         setIdentityM(modelMatrix, 0);
-        rotateM(modelMatrix, 0, -90f, 1f, 0f, 0f);
-        translateM(modelMatrix, 0, x, y, z);
-        multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix,
-                0, modelMatrix, 0);
+        translateM(modelMatrix, 0, x, y, 0f);
+        multiplyMM(modelProjectionMatrix, 0, projectionMatrix, 0, modelMatrix, 0);
     }
 
     @Override
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        table = new Table();
-        mallet = new Mallet(0.08f, 0.15f, 32);
-        puck = new Puck(0.06f, 0.02f, 32);
 
         pictureFrame = new TextureRect2DFrameObject(0.4f, 0.4f);
-
-        blueMalletPosition = new Point(0f, mallet.height / 2f, 0.4f);
-        puckPosition = new Point(0f, puck.height / 2f, 0f);
-        puckVector = new Vector(0f, 0f, 0f);
-
-        pictureFramePosition = new Point(0f, 0f, 0.4f);
+        pictureFramePosition = Geometry2D.CENTER_POINT_2D;
 
         textureProgram = new TextureShaderProgram(context);
         colorProgram = new ColorShaderProgram(context);
@@ -274,13 +104,19 @@ public class PictureComparatorRenderer implements Renderer {
         // Set the OpenGL viewport to fill the entire surface.
         glViewport(0, 0, width, height);
 
-        MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width
-                / (float) height, 1f, 10f);
+        // create  an  orthographic  projection  matrix
+        final float aspectRatio = width > height ?
+                (float) width / (float) height :
+                (float) height / (float) width;
 
-        setLookAtM(viewMatrix, 0,
-                eye[0], eye[1], eye[2],
-                center[0], center[1], center[2],
-                up[0], up[1], up[2]);
+        if (width > height) {
+            // Landscape
+            orthoM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
+        } else {
+            // Portrait or square
+            orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
+        }
+
     }
 
     @Override
@@ -290,19 +126,11 @@ public class PictureComparatorRenderer implements Renderer {
 
         // Update the viewProjection matrix, and create an inverted matrix for
         // touch picking.
-        multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
-        invertM(invertedViewProjectionMatrix, 0, viewProjectionMatrix, 0);
 
-        // Draw the table.
-        positionTableInScene();
+        positionObject2DInScene(pictureFramePosition.x, pictureFramePosition.y);
         textureProgram.useProgram();
-        textureProgram.setUniforms(modelViewProjectionMatrix, texture);
-        table.bindData(textureProgram);
-//        table.draw();
-
-        positionObjectInScene(pictureFramePosition.x, pictureFramePosition.y, pictureFramePosition.z);
-        textureProgram.setUniforms(modelViewProjectionMatrix, texture);
-        pictureFrame.bindData(colorProgram);
+        textureProgram.setUniforms(modelProjectionMatrix, texture);
+        pictureFrame.bindData(textureProgram);
         pictureFrame.draw();
 
     }
