@@ -7,12 +7,12 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
-import ledkis.module.picturecomparator.programs.ColorShaderProgram;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
 import ledkis.module.picturecomparator.util.Geometry2D;
 import ledkis.module.picturecomparator.util.Geometry2D.Point2D;
 import ledkis.module.picturecomparator.util.Geometry2D.Rect2D;
 import ledkis.module.picturecomparator.util.TextureHelper;
+import ledkis.module.picturecomparator.util.Utils;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.glClear;
@@ -26,6 +26,8 @@ import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_X;
 import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_Y;
 import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_X;
 import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_Y;
+import static ledkis.module.picturecomparator.Constants.NO_CLIP;
+import static ledkis.module.picturecomparator.util.TextureHelper.TextureInfo;
 
 public class PictureComparatorRenderer implements Renderer {
     private final Context context;
@@ -37,11 +39,11 @@ public class PictureComparatorRenderer implements Renderer {
     private TextureRect2DFrameObject choice1Picture;
     private TextureRect2DFrameObject choice2Picture;
 
-    private TextureShaderProgram textureProgram;
-    private ColorShaderProgram colorProgram;
+    private TextureInfo choice1TextureInfo;
+    private TextureInfo choice2TextureInfo;
 
-    private int textureChoice1;
-    private int textureChoice2;
+    private TextureShaderProgram textureChoice1Program;
+    private TextureShaderProgram textureChoice2Program;
 
     private boolean choice1Selected = false;
     private boolean choice2Selected = false;
@@ -69,12 +71,14 @@ public class PictureComparatorRenderer implements Renderer {
     public void handleTouchDrag(float normalizedX, float normalizedY) {
 
 
-        if (choice2Selected) {
-            choice2PicturePosition = getNewPosition(normalizedX, normalizedY);
-        } else if (choice1Selected) {
-            choice1PicturePosition = getNewPosition(normalizedX, normalizedY);
-        }
+//        if (choice2Selected) {
+//            choice2PicturePosition = getNewPosition(normalizedX, normalizedY);
+//        } else if (choice1Selected) {
+//            choice1PicturePosition = getNewPosition(normalizedX, normalizedY);
+//        }
 
+        float clipValue = Utils.map(normalizedX, -1f, 1f, 0f, 1f);
+        choice1Picture.clipTexture(clipValue);
 
     }
 
@@ -82,16 +86,12 @@ public class PictureComparatorRenderer implements Renderer {
         Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
 
         return new Point2D(
-                clamp(touchedPoint.x,
+                Utils.clamp(touchedPoint.x,
                         MIN_NORMALIZED_DEVICE_X + choice1Picture.width / 2,
                         MAX_NORMALIZED_DEVICE_X - choice1Picture.width / 2),
-                clamp(touchedPoint.y,
+                Utils.clamp(touchedPoint.y,
                         MIN_NORMALIZED_DEVICE_Y + choice1Picture.height / 2,
                         MAX_NORMALIZED_DEVICE_Y - choice1Picture.height / 2));
-    }
-
-    private float clamp(float value, float min, float max) {
-        return Math.min(max, Math.max(value, min));
     }
 
     private void positionObject2DInScene(float x, float y) {
@@ -105,18 +105,20 @@ public class PictureComparatorRenderer implements Renderer {
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+        textureChoice1Program = new TextureShaderProgram(context);
+        textureChoice2Program = new TextureShaderProgram(context);
+        choice1TextureInfo = TextureHelper.loadTexture(context, R.drawable.choice1);
+        choice2TextureInfo = TextureHelper.loadTexture(context, R.drawable.choice2);
 
-        choice1Picture = new TextureRect2DFrameObject(0.4f, 0.8f);
+
+        choice1Picture = new TextureRect2DFrameObject(1f, 2f, NO_CLIP);
         choice1PicturePosition = new Point2D(-0.5f, 0f);
 
-        choice2Picture = new TextureRect2DFrameObject(0.4f, 0.8f);
+        choice2Picture = new TextureRect2DFrameObject(1f, 2f, NO_CLIP);
         choice2PicturePosition = new Point2D(0.5f, 0f);
 
-        textureProgram = new TextureShaderProgram(context);
-        colorProgram = new ColorShaderProgram(context);
 
-        textureChoice1 = TextureHelper.loadTexture(context, R.drawable.choice1);
-        textureChoice2 = TextureHelper.loadTexture(context, R.drawable.choice2);
+
     }
 
     @Override
@@ -144,18 +146,18 @@ public class PictureComparatorRenderer implements Renderer {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Update the viewProjection matrix, and create an inverted matrix for
-        // touch picking.
-
+        // Picture 1
         positionObject2DInScene(choice1PicturePosition.x, choice1PicturePosition.y);
-        textureProgram.useProgram();
-        textureProgram.setUniforms(modelProjectionMatrix, textureChoice1);
-        choice1Picture.bindData(textureProgram);
+        textureChoice1Program.useProgram();
+        textureChoice1Program.setUniforms(modelProjectionMatrix, choice1TextureInfo.id);
+        choice1Picture.bindData(textureChoice1Program);
         choice1Picture.draw();
 
+        // Picture 2
         positionObject2DInScene(choice2PicturePosition.x, choice2PicturePosition.y);
-        textureProgram.setUniforms(modelProjectionMatrix, textureChoice2);
-        choice2Picture.bindData(colorProgram);
+        textureChoice2Program.useProgram();
+        textureChoice2Program.setUniforms(modelProjectionMatrix, choice2TextureInfo.id);
+        choice2Picture.bindData(textureChoice2Program);
         choice2Picture.draw();
 
     }

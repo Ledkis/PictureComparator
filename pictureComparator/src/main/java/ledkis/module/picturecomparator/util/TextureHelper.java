@@ -23,6 +23,22 @@ public class TextureHelper {
     private static final String TAG = "TextureHelper";
 
     /**
+     * http://stackoverflow.com/questions/30140178/opengl-es-2-0-get-texture-size-and-other-info
+     */
+    public static class TextureInfo {
+
+        public final int id;
+        public final int width;
+        public final int height;
+
+        public TextureInfo(int id, int width, int height) {
+            this.id = id;
+            this.width = width;
+            this.height = height;
+        }
+    }
+
+    /**
      * Loads a texture from a resource ID, returning the OpenGL ID for that
      * texture. Returns 0 if the load failed.
      * 
@@ -30,7 +46,7 @@ public class TextureHelper {
      * @param resourceId
      * @return
      */
-    public static int loadTexture(Context context, int resourceId) {
+    public static TextureInfo loadTexture(Context context, int resourceId) {
         final int[] textureObjectIds = new int[1];
         glGenTextures(1, textureObjectIds, 0);
 
@@ -39,7 +55,7 @@ public class TextureHelper {
                 Log.w(TAG, "Could not generate a new OpenGL texture object.");
             }
 
-            return 0;
+            return new TextureInfo(0, -1, -1);
         }
         
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -57,7 +73,7 @@ public class TextureHelper {
 
             glDeleteTextures(1, textureObjectIds, 0);
 
-            return 0;
+            return new TextureInfo(0, -1, -1);
         } 
         
         // Bind to the texture in OpenGL
@@ -69,7 +85,7 @@ public class TextureHelper {
             GL_TEXTURE_MIN_FILTER,
             GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D,
-            GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         // Load the bitmap into the bound texture.
         texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
 
@@ -83,6 +99,9 @@ public class TextureHelper {
 
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        TextureInfo textureInfo = new TextureInfo(textureObjectIds[0], bitmap.getWidth(), bitmap
+                .getHeight());
+
         // Recycle the bitmap, since its data has been loaded into
         // OpenGL.
         bitmap.recycle();
@@ -90,6 +109,6 @@ public class TextureHelper {
         // Unbind from the texture.
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        return textureObjectIds[0];        
+        return textureInfo;
     }
 }
