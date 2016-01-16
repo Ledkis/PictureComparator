@@ -1,10 +1,11 @@
 package ledkis.module.picturecomparator.objects;
-import static android.opengl.GLES20.GL_TRIANGLE_FAN;
-import static android.opengl.GLES20.glDrawArrays;
-import static ledkis.module.picturecomparator.Constants.BYTES_PER_FLOAT;
 
 import ledkis.module.picturecomparator.data.VertexArray;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
+
+import static android.opengl.GLES20.GL_TRIANGLE_FAN;
+import static android.opengl.GLES20.glDrawArrays;
+import static ledkis.module.picturecomparator.Constants.BYTES_PER_FLOAT;
 
 public class Table {            
     private static final int POSITION_COMPONENT_COUNT = 2;
@@ -16,11 +17,11 @@ public class Table {
         // Order of coordinates: X, Y, S, T
 
         // Triangle Fan
-           0f,    0f, 0.5f, 0.5f, 
-        -0.5f, -0.8f,   0f, 0.9f,  
+           0f,    0f, 0.5f, 0.5f,
+            -0.5f, -0.8f, 0f, 0.9f,
          0.5f, -0.8f,   1f, 0.9f, 
-         0.5f,  0.8f,   1f, 0.1f, 
-        -0.5f,  0.8f,   0f, 0.1f, 
+         0.5f,  0.8f,   1f, 0.1f,
+            -0.5f, 0.8f, 0f, 0.1f,
         -0.5f, -0.8f,   0f, 0.9f };
     
     private final VertexArray vertexArray;

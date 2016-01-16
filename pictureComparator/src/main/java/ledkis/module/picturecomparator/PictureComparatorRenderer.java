@@ -40,11 +40,26 @@ public class PictureComparatorRenderer implements Renderer {
     private final float[] viewMatrix = new float[16];
     private final float[] viewProjectionMatrix = new float[16];
     private final float[] invertedViewProjectionMatrix = new float[16];
-    private final float[] modelViewProjectionMatrix = new float[16];                       
+    private final float[] modelViewProjectionMatrix = new float[16];
+
+    // https://github.com/GGist/Android-FlightSimulator/blob/master/src/com/flightsimulator/world/Camera.java
+    // https://github.com/jayway/OpenGL-ES-2.0-Lab/blob/master/lab_01/solution/src/com/jayway/gles20/Camera.java
+    /**
+     * The eye postion
+     */
+    private final float[] eye = {0, 1f, 2f};
+    /**
+     * The center position
+     */
+    private final float[] center = {0, 0f, 0f};
+    /**
+     * The up vector
+     */
+    private final float[] up = {0f, 1f, 0f};
 
     private Table table;
     private Mallet mallet;
-    private Puck puck;           
+    private Puck puck;
 
     private TextureShaderProgram textureProgram;
     private ColorShaderProgram colorProgram;
@@ -215,7 +230,10 @@ public class PictureComparatorRenderer implements Renderer {
         MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width
                 / (float) height, 1f, 10f);
 
-        setLookAtM(viewMatrix, 0, 0f, 1.2f, 2.2f, 0f, 0f, 0f, 0f, 1f, 0f);
+        setLookAtM(viewMatrix, 0,
+                eye[0], eye[1], eye[2],
+                center[0], center[1], center[2],
+                up[0], up[1], up[2]);
     }
 
     @Override
