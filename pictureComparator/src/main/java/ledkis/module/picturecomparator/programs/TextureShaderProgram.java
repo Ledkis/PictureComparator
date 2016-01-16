@@ -20,7 +20,7 @@ public class TextureShaderProgram extends ShaderProgram {
     private final int aPositionLocation;
     private final int aTextureCoordinatesLocation;
 
-    private static final String texture_vertex_shader =
+    private static final String TEXTURE_VERTEX_SHADER =
             "uniform mat4 u_Matrix;\n" +
                     "attribute vec4 a_Position;\n" +
                     "attribute vec2 a_TextureCoordinates;\n" +
@@ -31,7 +31,7 @@ public class TextureShaderProgram extends ShaderProgram {
                     "gl_Position = u_Matrix * a_Position;\n" +
                     "}";
 
-    private static final String texture_fragment_shader =
+    private static final String TEXTURE_FRAGMENT_SHADER =
             "precision mediump float;\n" +
                     "uniform sampler2D u_TextureUnit;\n" +
                     "varying vec2 v_TextureCoordinates;\n" +
@@ -41,7 +41,7 @@ public class TextureShaderProgram extends ShaderProgram {
                     "}";
 
     public TextureShaderProgram(Context context) {
-        super(context, texture_vertex_shader, texture_fragment_shader);
+        super(context, TEXTURE_VERTEX_SHADER, TEXTURE_FRAGMENT_SHADER);
 
         // Retrieve uniform locations for the shader program.
         uMatrixLocation = glGetUniformLocation(program, U_MATRIX);

@@ -1,5 +1,12 @@
 package ledkis.module.picturecomparator.util;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import ledkis.module.picturecomparator.Constants;
+
 import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_LINEAR_MIPMAP_LINEAR;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
@@ -11,10 +18,6 @@ import static android.opengl.GLES20.glGenTextures;
 import static android.opengl.GLES20.glGenerateMipmap;
 import static android.opengl.GLES20.glTexParameteri;
 import static android.opengl.GLUtils.texImage2D;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
 public class TextureHelper {
     private static final String TAG = "TextureHelper";
@@ -32,7 +35,7 @@ public class TextureHelper {
         glGenTextures(1, textureObjectIds, 0);
 
         if (textureObjectIds[0] == 0) {
-            if (LoggerConfig.ON) {
+            if (Constants.LoggerConfig.ON) {
                 Log.w(TAG, "Could not generate a new OpenGL texture object.");
             }
 
@@ -47,7 +50,7 @@ public class TextureHelper {
             context.getResources(), resourceId, options);
 
         if (bitmap == null) {
-            if (LoggerConfig.ON) {
+            if (Constants.LoggerConfig.ON) {
                 Log.w(TAG, "Resource ID " + resourceId
                     + " could not be decoded.");
             }

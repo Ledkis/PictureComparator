@@ -1,5 +1,9 @@
 package ledkis.module.picturecomparator.util;
 
+import android.util.Log;
+
+import ledkis.module.picturecomparator.Constants;
+
 import static android.opengl.GLES20.GL_COMPILE_STATUS;
 import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_LINK_STATUS;
@@ -18,7 +22,6 @@ import static android.opengl.GLES20.glGetShaderiv;
 import static android.opengl.GLES20.glLinkProgram;
 import static android.opengl.GLES20.glShaderSource;
 import static android.opengl.GLES20.glValidateProgram;
-import android.util.Log;
 
 public class ShaderHelper {
     private static final String TAG = "ShaderHelper";
@@ -45,7 +48,7 @@ public class ShaderHelper {
         final int shaderObjectId = glCreateShader(type);
 
         if (shaderObjectId == 0) {
-            if (LoggerConfig.ON) {
+            if (Constants.LoggerConfig.ON) {
                 Log.w(TAG, "Could not create new shader.");
             }
 
@@ -63,7 +66,7 @@ public class ShaderHelper {
         glGetShaderiv(shaderObjectId, GL_COMPILE_STATUS,
             compileStatus, 0);
 
-        if (LoggerConfig.ON) {
+        if (Constants.LoggerConfig.ON) {
             // Print the shader info log to the Android log output.
             Log.v(TAG, "Results of compiling source:" + "\n" + shaderCode
                 + "\n:" + glGetShaderInfoLog(shaderObjectId));
@@ -74,7 +77,7 @@ public class ShaderHelper {
             // If it failed, delete the shader object.
             glDeleteShader(shaderObjectId);
 
-            if (LoggerConfig.ON) {
+            if (Constants.LoggerConfig.ON) {
                 Log.w(TAG, "Compilation of shader failed.");
             }
 
@@ -95,7 +98,7 @@ public class ShaderHelper {
         final int programObjectId = glCreateProgram();
 
         if (programObjectId == 0) {
-            if (LoggerConfig.ON) {
+            if (Constants.LoggerConfig.ON) {
                 Log.w(TAG, "Could not create new program");
             }
 
@@ -116,7 +119,7 @@ public class ShaderHelper {
         glGetProgramiv(programObjectId, GL_LINK_STATUS,
             linkStatus, 0);
 
-        if (LoggerConfig.ON) {
+        if (Constants.LoggerConfig.ON) {
             // Print the program info log to the Android log output.
             Log.v(
                 TAG,
@@ -129,7 +132,7 @@ public class ShaderHelper {
             // If it failed, delete the program object.
             glDeleteProgram(programObjectId);
 
-            if (LoggerConfig.ON) {
+            if (Constants.LoggerConfig.ON) {
                 Log.w(TAG, "Linking of program failed.");
             }
 
@@ -170,7 +173,7 @@ public class ShaderHelper {
         // Link them into a shader program.
         program = linkProgram(vertexShader, fragmentShader);
 
-        if (LoggerConfig.ON) {
+        if (Constants.LoggerConfig.ON) {
             validateProgram(program);
         }
 

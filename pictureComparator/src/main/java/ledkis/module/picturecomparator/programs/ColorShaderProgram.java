@@ -15,7 +15,7 @@ public class ColorShaderProgram extends ShaderProgram {
     // Attribute locations
     private final int aPositionLocation;
 
-    private static final String simple_vertex_shader =
+    private static final String SIMPLE_VERTEX_SHADER =
             "uniform mat4 u_Matrix;\n" +
                     "attribute vec4 a_Position;\n" +
                     "\n" +
@@ -23,7 +23,7 @@ public class ColorShaderProgram extends ShaderProgram {
                     "gl_Position = u_Matrix * a_Position;\n" +
                     "}";
 
-    private static final String simple_fragment_shader =
+    private static final String SIMPLE_FRAGMENT_SHADER =
             "precision mediump float;\n" +
                     "uniform vec4 u_Color;\n" +
                     "\n" +
@@ -33,7 +33,7 @@ public class ColorShaderProgram extends ShaderProgram {
 
 
     public ColorShaderProgram(Context context) {
-        super(context, simple_vertex_shader, simple_fragment_shader);
+        super(context, SIMPLE_VERTEX_SHADER, SIMPLE_FRAGMENT_SHADER);
 
         // Retrieve uniform locations for the shader program.
         uMatrixLocation = glGetUniformLocation(program, U_MATRIX);

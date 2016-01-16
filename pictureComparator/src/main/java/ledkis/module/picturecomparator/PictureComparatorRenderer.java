@@ -22,14 +22,13 @@ import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.orthoM;
 import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
+import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_X;
+import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_Y;
+import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_X;
+import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_Y;
 
 public class PictureComparatorRenderer implements Renderer {
     private final Context context;
-
-    private static final float MIN_X = -1f;
-    private static final float MAX_X = 1f;
-    private static final float MIN_Y = -1f;
-    private static final float MAX_Y = 1f;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
@@ -66,11 +65,11 @@ public class PictureComparatorRenderer implements Renderer {
 
             pictureFramePosition = new Point2D(
                     clamp(touchedPoint.x,
-                            MIN_X + pictureFrame.width / 2,
-                            MAX_X - pictureFrame.width / 2),
+                            MIN_NORMALIZED_DEVICE_X + pictureFrame.width / 2,
+                            MAX_NORMALIZED_DEVICE_X - pictureFrame.width / 2),
                     clamp(touchedPoint.y,
-                            MIN_Y + pictureFrame.height / 2,
-                            MAX_Y - pictureFrame.height / 2));
+                            MIN_NORMALIZED_DEVICE_Y + pictureFrame.height / 2,
+                            MAX_NORMALIZED_DEVICE_Y - pictureFrame.height / 2));
         }
     }
 
@@ -78,12 +77,12 @@ public class PictureComparatorRenderer implements Renderer {
         return Math.min(max, Math.max(value, min));
     }
 
-    // The mallets and the puck are positioned on the same plane as the table.
     private void positionObject2DInScene(float x, float y) {
         setIdentityM(modelMatrix, 0);
         translateM(modelMatrix, 0, x, y, 0f);
         multiplyMM(modelProjectionMatrix, 0, projectionMatrix, 0, modelMatrix, 0);
     }
+
 
     @Override
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
