@@ -2,8 +2,6 @@ package ledkis.module.picturecomparator.programs;
 
 import android.content.Context;
 
-import ledkis.module.picturecomparator.R;
-
 import static android.opengl.GLES20.GL_TEXTURE0;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.glActiveTexture;
@@ -22,8 +20,28 @@ public class TextureShaderProgram extends ShaderProgram {
     private final int aPositionLocation;
     private final int aTextureCoordinatesLocation;
 
+    private static final String texture_vertex_shader =
+            "uniform mat4 u_Matrix;\n" +
+                    "attribute vec4 a_Position;\n" +
+                    "attribute vec2 a_TextureCoordinates;\n" +
+                    "varying vec2 v_TextureCoordinates;\n" +
+                    "\n" +
+                    "void main(){\n" +
+                    "v_TextureCoordinates = a_TextureCoordinates;\n" +
+                    "gl_Position = u_Matrix * a_Position;\n" +
+                    "}";
+
+    private static final String texture_fragment_shader =
+            "precision mediump float;\n" +
+                    "uniform sampler2D u_TextureUnit;\n" +
+                    "varying vec2 v_TextureCoordinates;\n" +
+                    "\n" +
+                    "void main(){\n" +
+                    "gl_FragColor = texture2D(u_TextureUnit, v_TextureCoordinates);\n" +
+                    "}";
+
     public TextureShaderProgram(Context context) {
-        super(context, R.raw.texture_vertex_shader, R.raw.texture_fragment_shader);
+        super(context, texture_vertex_shader, texture_fragment_shader);
 
         // Retrieve uniform locations for the shader program.
         uMatrixLocation = glGetUniformLocation(program, U_MATRIX);

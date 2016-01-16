@@ -1,10 +1,11 @@
 package ledkis.module.picturecomparator.programs;
 
-import static android.opengl.GLES20.glUseProgram;
 import android.content.Context;
 
 import ledkis.module.picturecomparator.util.ShaderHelper;
 import ledkis.module.picturecomparator.util.TextResourceReader;
+
+import static android.opengl.GLES20.glUseProgram;
 
 abstract class ShaderProgram {
     // Uniform constants
@@ -28,7 +29,13 @@ abstract class ShaderProgram {
                 .readTextFileFromResource(context, vertexShaderResourceId),
             TextResourceReader
                 .readTextFileFromResource(context, fragmentShaderResourceId));
-    }        
+    }
+
+    protected ShaderProgram(Context context, String vertexShaderResource,
+                            String fragmentShaderResource) {
+        // Compile the shaders and link the program.
+        program = ShaderHelper.buildProgram(vertexShaderResource, fragmentShaderResource);
+    }
 
     public void useProgram() {
         // Set the current OpenGL shader program to this program.

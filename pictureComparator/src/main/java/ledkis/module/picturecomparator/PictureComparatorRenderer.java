@@ -2,6 +2,7 @@ package ledkis.module.picturecomparator;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
+import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -9,13 +10,13 @@ import javax.microedition.khronos.opengles.GL10;
 import ledkis.module.picturecomparator.objects.Mallet;
 import ledkis.module.picturecomparator.objects.Puck;
 import ledkis.module.picturecomparator.objects.Table;
+import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
 import ledkis.module.picturecomparator.programs.ColorShaderProgram;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
 import ledkis.module.picturecomparator.util.Geometry;
 import ledkis.module.picturecomparator.util.Geometry.Plane;
 import ledkis.module.picturecomparator.util.Geometry.Point;
 import ledkis.module.picturecomparator.util.Geometry.Ray;
-import ledkis.module.picturecomparator.util.Geometry.Sphere;
 import ledkis.module.picturecomparator.util.Geometry.Vector;
 import ledkis.module.picturecomparator.util.MatrixHelper;
 import ledkis.module.picturecomparator.util.TextureHelper;
@@ -61,20 +62,27 @@ public class PictureComparatorRenderer implements Renderer {
     private Mallet mallet;
     private Puck puck;
 
+    private TextureRect2DFrameObject pictureFrame;
+
     private TextureShaderProgram textureProgram;
     private ColorShaderProgram colorProgram;
 
     private int texture;
 
     private boolean malletPressed = false;
-    private Point blueMalletPosition;    
+    private Point blueMalletPosition;
+    private Point previousBlueMalletPosition;
+
+    private boolean pictureFrameSelected = false;
+    private Point pictureFramePosition;
+    private Point previousPictureFramePosition;
     
     private final float leftBound = -0.5f;
     private final float rightBound = 0.5f;
     private final float farBound = -0.8f;
     private final float nearBound = 0.8f;
     
-    private Point previousBlueMalletPosition;
+
     
     private Point puckPosition;
     private Vector puckVector;
@@ -84,26 +92,74 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
-        
+
+//        Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
+//
+//        // Now test if this ray intersects with the mallet by creating a
+//        // bounding sphere that wraps the mallet.
+//        Sphere malletBoundingSphere = new Sphere(new Point(
+//                blueMalletPosition.x,
+//                blueMalletPosition.y,
+//                blueMalletPosition.z),
+//                mallet.height / 2f);
+//
+//        // If the ray intersects (if the user touched a part of the screen that
+//        // intersects the mallet's bounding sphere), then set malletPressed =
+//        // true.
+//        malletPressed = Geometry.intersects(malletBoundingSphere, ray);
+
         Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
 
-        // Now test if this ray intersects with the mallet by creating a
-        // bounding sphere that wraps the mallet.
-        Sphere malletBoundingSphere = new Sphere(new Point(
-                blueMalletPosition.x, 
-                blueMalletPosition.y, 
-                blueMalletPosition.z),
-            mallet.height / 2f);
+        Geometry.Rect pictureFrameBounding = new Geometry.Rect(new Point(
+                pictureFramePosition.x,
+                pictureFramePosition.y,
+                pictureFramePosition.z),
+                0.2f, 0.2f);
 
-        // If the ray intersects (if the user touched a part of the screen that
-        // intersects the mallet's bounding sphere), then set malletPressed =
-        // true.
-        malletPressed = Geometry.intersects(malletBoundingSphere, ray);
+        pictureFrameSelected = Geometry.intersects(pictureFrameBounding, ray);
+
+        Log.d("XXX", "pictureFrameSelected: " + pictureFrameSelected);
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
 
-        if (malletPressed) {
+//        if (malletPressed) {
+//            Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
+//            // Define a plane representing our air hockey table.
+//            Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
+//            // Find out where the touched point intersects the plane
+//            // representing our table. We'll move the mallet along this plane.
+//            Point touchedPoint = Geometry.intersectionPoint(ray, plane);
+//            // Clamp to bounds
+//
+//            previousBlueMalletPosition = blueMalletPosition;
+//            /*
+//            blueMalletPosition =
+//                new Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
+//            */
+//            // Clamp to bounds
+//            blueMalletPosition = new Point(
+//                    clamp(touchedPoint.x,
+//                            leftBound + mallet.radius,
+//                            rightBound - mallet.radius),
+//                    mallet.height / 2f,
+//                    clamp(touchedPoint.z,
+//                            0f + mallet.radius,
+//                            nearBound - mallet.radius));
+//
+//            // Now test if mallet has struck the puck.
+//            float distance =
+//                    Geometry.vectorBetween(blueMalletPosition, puckPosition).length();
+//
+//            if (distance < (puck.radius + mallet.radius)) {
+//                // The mallet has struck the puck. Now send the puck flying
+//                // based on the mallet velocity.
+//                puckVector = Geometry.vectorBetween(
+//                        previousBlueMalletPosition, blueMalletPosition);
+//            }
+//        }
+
+        if (pictureFrameSelected) {
             Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
             // Define a plane representing our air hockey table.
             Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
@@ -112,31 +168,17 @@ public class PictureComparatorRenderer implements Renderer {
             Point touchedPoint = Geometry.intersectionPoint(ray, plane);
             // Clamp to bounds
 
-            previousBlueMalletPosition = blueMalletPosition;
-            /*
-            blueMalletPosition =
-                new Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
-            */
-            // Clamp to bounds
-            blueMalletPosition = new Point(
+            previousPictureFramePosition = pictureFramePosition;
+
+            pictureFramePosition = new Point(
                     clamp(touchedPoint.x,
-                            leftBound + mallet.radius,
-                            rightBound - mallet.radius),
-                    mallet.height / 2f,
+                            leftBound + pictureFrame.width / 2,
+                            rightBound - pictureFrame.width / 2),
+                    0f,
                     clamp(touchedPoint.z,
-                            0f + mallet.radius,
-                            nearBound - mallet.radius));
+                            0f + pictureFrame.width / 2,
+                            nearBound - pictureFrame.width / 2));
 
-            // Now test if mallet has struck the puck.
-            float distance =
-                    Geometry.vectorBetween(blueMalletPosition, puckPosition).length();
-
-            if (distance < (puck.radius + mallet.radius)) {
-                // The mallet has struck the puck. Now send the puck flying
-                // based on the mallet velocity.
-                puckVector = Geometry.vectorBetween(
-                        previousBlueMalletPosition, blueMalletPosition);
-            }
         }
     }
 
@@ -199,6 +241,7 @@ public class PictureComparatorRenderer implements Renderer {
     // The mallets and the puck are positioned on the same plane as the table.
     private void positionObjectInScene(float x, float y, float z) {
         setIdentityM(modelMatrix, 0);
+        rotateM(modelMatrix, 0, -90f, 1f, 0f, 0f);
         translateM(modelMatrix, 0, x, y, z);
         multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix,
                 0, modelMatrix, 0);
@@ -212,9 +255,13 @@ public class PictureComparatorRenderer implements Renderer {
         mallet = new Mallet(0.08f, 0.15f, 32);
         puck = new Puck(0.06f, 0.02f, 32);
 
+        pictureFrame = new TextureRect2DFrameObject(0.4f, 0.4f);
+
         blueMalletPosition = new Point(0f, mallet.height / 2f, 0.4f);
         puckPosition = new Point(0f, puck.height / 2f, 0f);
         puckVector = new Vector(0f, 0f, 0f);
+
+        pictureFramePosition = new Point(0f, 0f, 0.4f);
 
         textureProgram = new TextureShaderProgram(context);
         colorProgram = new ColorShaderProgram(context);
@@ -241,34 +288,9 @@ public class PictureComparatorRenderer implements Renderer {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Translate the puck by its vector
-        puckPosition = puckPosition.translate(puckVector);
-
-        // If the puck struck a side, reflect it off that side.
-        if (puckPosition.x < leftBound + puck.radius
-         || puckPosition.x > rightBound - puck.radius) {
-            puckVector = new Vector(-puckVector.x, puckVector.y, puckVector.z);
-            puckVector = puckVector.scale(0.9f);
-        }
-        if (puckPosition.z < farBound + puck.radius
-         || puckPosition.z > nearBound - puck.radius) {
-            puckVector = new Vector(puckVector.x, puckVector.y, -puckVector.z);
-            puckVector = puckVector.scale(0.9f);
-        }
-        // Clamp the puck position.
-        puckPosition = new Point(
-            clamp(puckPosition.x, leftBound + puck.radius, rightBound - puck.radius),
-            puckPosition.y,
-            clamp(puckPosition.z, farBound + puck.radius, nearBound - puck.radius)
-        );
-
-        // Friction factor
-        puckVector = puckVector.scale(0.99f);
-
         // Update the viewProjection matrix, and create an inverted matrix for
         // touch picking.
-        multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0,
-            viewMatrix, 0);
+        multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
         invertM(invertedViewProjectionMatrix, 0, viewProjectionMatrix, 0);
 
         // Draw the table.
@@ -276,27 +298,12 @@ public class PictureComparatorRenderer implements Renderer {
         textureProgram.useProgram();
         textureProgram.setUniforms(modelViewProjectionMatrix, texture);
         table.bindData(textureProgram);
-        table.draw();
+//        table.draw();
 
-        // Draw the mallets.
-        positionObjectInScene(0f, mallet.height / 2f, -0.4f);
-        colorProgram.useProgram();
-        colorProgram.setUniforms(modelViewProjectionMatrix, 1f, 0f, 0f);
-        mallet.bindData(colorProgram);
-        mallet.draw();
+        positionObjectInScene(pictureFramePosition.x, pictureFramePosition.y, pictureFramePosition.z);
+        textureProgram.setUniforms(modelViewProjectionMatrix, texture);
+        pictureFrame.bindData(colorProgram);
+        pictureFrame.draw();
 
-        positionObjectInScene(blueMalletPosition.x, blueMalletPosition.y,
-            blueMalletPosition.z);
-        colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 0f, 1f);
-        // Note that we don't have to define the object data twice -- we just
-        // draw the same mallet again but in a different position and with a
-        // different color.
-        mallet.draw();
-
-        // Draw the puck.
-        positionObjectInScene(puckPosition.x, puckPosition.y, puckPosition.z);
-        colorProgram.setUniforms(modelViewProjectionMatrix, 0.8f, 0.8f, 1f);
-        puck.bindData(colorProgram);
-        puck.draw();
     }
 }

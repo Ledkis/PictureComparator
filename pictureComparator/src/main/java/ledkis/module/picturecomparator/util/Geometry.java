@@ -1,6 +1,9 @@
 package ledkis.module.picturecomparator.util;
 
 public class Geometry {
+
+    public static final Point CENTER_POINT = new Point(0f, 0f, 0f);
+
     public static class Point {
         public final float x, y, z;
 
@@ -108,6 +111,18 @@ public class Geometry {
         }
     }
 
+    public static class Rect {
+        public final Point center;
+        public final float width;
+        public final float height;
+
+        public Rect(Point center, float width, float height) {
+            this.center = center;
+            this.width = width;
+            this.height = height;
+        }
+    }
+
     public static class Plane {                
         public final Point point;
         public final Vector normal;
@@ -127,6 +142,11 @@ public class Geometry {
     
     public static boolean intersects(Sphere sphere, Ray ray) {
         return distanceBetween(sphere.center, ray) < sphere.radius;
+    }
+
+    public static boolean intersects(Rect rect, Ray ray) {
+        // TODO simplification : rect.width
+        return distanceBetween(rect.center, ray) < rect.width;
     }
     
     // http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html

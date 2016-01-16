@@ -1,15 +1,16 @@
 package ledkis.module.picturecomparator.objects;
 
-import static android.opengl.GLES20.GL_TRIANGLE_FAN;
-import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
-import static android.opengl.GLES20.glDrawArrays;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import ledkis.module.picturecomparator.util.Geometry;
 import ledkis.module.picturecomparator.util.Geometry.Circle;
 import ledkis.module.picturecomparator.util.Geometry.Cylinder;
 import ledkis.module.picturecomparator.util.Geometry.Point;
+
+import static android.opengl.GLES20.GL_TRIANGLE_FAN;
+import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
+import static android.opengl.GLES20.glDrawArrays;
 
 class ObjectBuilder {
     private static final int FLOATS_PER_VERTEX = 3;
@@ -43,6 +44,13 @@ class ObjectBuilder {
 
         return builder.build();
     }
+
+    static GeneratedData createRectFrame(Geometry.Rect rect) {
+        ObjectBuilder builder = new ObjectBuilder(6);
+        builder.appendRect(rect);
+        return builder.build();
+    }
+
 
     static GeneratedData createMallet(
         Point center, float radius, float height, int numPoints) {
@@ -95,6 +103,49 @@ class ObjectBuilder {
 
     private ObjectBuilder(int sizeInVertices) {
         vertexData = new float[sizeInVertices * FLOATS_PER_VERTEX];
+    }
+
+    private void appendRect(Geometry.Rect rect) {
+
+        // Center point of fan
+        vertexData[offset++] = rect.center.x;
+        vertexData[offset++] = rect.center.y;
+        vertexData[offset++] = rect.center.z;
+
+        // 4.2     Introducing Triangle Fans
+
+        // position 2
+        vertexData[offset++] = -rect.width / 2;
+        vertexData[offset++] = -rect.height / 2;
+        vertexData[offset++] = rect.center.z;
+
+        // position 3
+        vertexData[offset++] = rect.width / 2;
+        vertexData[offset++] = -rect.height / 2;
+        vertexData[offset++] = rect.center.z;
+
+        // position 4
+        vertexData[offset++] = rect.width / 2;
+        vertexData[offset++] = rect.height / 2;
+        vertexData[offset++] = rect.center.z;
+
+        // position 5
+        vertexData[offset++] = -rect.width / 2;
+        vertexData[offset++] = rect.height / 2;
+        vertexData[offset++] = rect.center.z;
+
+        // position 6
+        vertexData[offset++] = -rect.width / 2;
+        vertexData[offset++] = -rect.height / 2;
+        vertexData[offset++] = rect.center.z;
+
+
+        drawList.add(new DrawCommand() {
+            @Override
+            public void draw() {
+                glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
+            }
+        });
     }
 
     private void appendCircle(Circle circle, int numPoints) {
