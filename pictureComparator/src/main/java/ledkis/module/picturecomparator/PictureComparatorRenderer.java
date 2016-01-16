@@ -34,16 +34,19 @@ public class PictureComparatorRenderer implements Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] modelProjectionMatrix = new float[16];
 
-    private TextureRect2DFrameObject pictureFrame;
+    private TextureRect2DFrameObject choice1Picture;
+    private TextureRect2DFrameObject choice2Picture;
 
     private TextureShaderProgram textureProgram;
     private ColorShaderProgram colorProgram;
 
-    private int texture;
+    private int textureChoice1;
+    private int textureChoice2;
 
-    private boolean pictureFrameSelected = false;
-    private Point2D pictureFramePosition;
-    private Point2D previousPictureFramePosition;
+    private boolean choice1Selected = false;
+    private boolean choice2Selected = false;
+    private Point2D choice1PicturePosition;
+    private Point2D choice2PicturePosition;
 
     public PictureComparatorRenderer(Context context) {
         this.context = context;
@@ -52,25 +55,39 @@ public class PictureComparatorRenderer implements Renderer {
     public void handleTouchPress(float normalizedX, float normalizedY) {
 
         Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
-        Rect2D pictureFrameBounding = pictureFrame.getRect2D().moveTo(pictureFramePosition);
-        pictureFrameSelected = Geometry2D.intersects(pictureFrameBounding, touchedPoint);
+
+        Rect2D choice2PictureBounding = choice2Picture.getRect2D().moveTo(choice2PicturePosition);
+        choice2Selected = Geometry2D.intersects(choice2PictureBounding, touchedPoint);
+
+        if (choice2Selected)
+            return;
+
+        Rect2D choice1PictureBounding = choice1Picture.getRect2D().moveTo(choice1PicturePosition);
+        choice1Selected = Geometry2D.intersects(choice1PictureBounding, touchedPoint);
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
 
-        if (pictureFrameSelected) {
 
-            previousPictureFramePosition = pictureFramePosition;
-            Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
-
-            pictureFramePosition = new Point2D(
-                    clamp(touchedPoint.x,
-                            MIN_NORMALIZED_DEVICE_X + pictureFrame.width / 2,
-                            MAX_NORMALIZED_DEVICE_X - pictureFrame.width / 2),
-                    clamp(touchedPoint.y,
-                            MIN_NORMALIZED_DEVICE_Y + pictureFrame.height / 2,
-                            MAX_NORMALIZED_DEVICE_Y - pictureFrame.height / 2));
+        if (choice2Selected) {
+            choice2PicturePosition = getNewPosition(normalizedX, normalizedY);
+        } else if (choice1Selected) {
+            choice1PicturePosition = getNewPosition(normalizedX, normalizedY);
         }
+
+
+    }
+
+    private Point2D getNewPosition(float normalizedX, float normalizedY) {
+        Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
+
+        return new Point2D(
+                clamp(touchedPoint.x,
+                        MIN_NORMALIZED_DEVICE_X + choice1Picture.width / 2,
+                        MAX_NORMALIZED_DEVICE_X - choice1Picture.width / 2),
+                clamp(touchedPoint.y,
+                        MIN_NORMALIZED_DEVICE_Y + choice1Picture.height / 2,
+                        MAX_NORMALIZED_DEVICE_Y - choice1Picture.height / 2));
     }
 
     private float clamp(float value, float min, float max) {
@@ -89,13 +106,17 @@ public class PictureComparatorRenderer implements Renderer {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 
-        pictureFrame = new TextureRect2DFrameObject(0.4f, 0.4f);
-        pictureFramePosition = Geometry2D.CENTER_POINT_2D;
+        choice1Picture = new TextureRect2DFrameObject(0.4f, 0.8f);
+        choice1PicturePosition = new Point2D(-0.5f, 0f);
+
+        choice2Picture = new TextureRect2DFrameObject(0.4f, 0.8f);
+        choice2PicturePosition = new Point2D(0.5f, 0f);
 
         textureProgram = new TextureShaderProgram(context);
         colorProgram = new ColorShaderProgram(context);
 
-        texture = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
+        textureChoice1 = TextureHelper.loadTexture(context, R.drawable.choice1);
+        textureChoice2 = TextureHelper.loadTexture(context, R.drawable.choice2);
     }
 
     @Override
@@ -126,11 +147,16 @@ public class PictureComparatorRenderer implements Renderer {
         // Update the viewProjection matrix, and create an inverted matrix for
         // touch picking.
 
-        positionObject2DInScene(pictureFramePosition.x, pictureFramePosition.y);
+        positionObject2DInScene(choice1PicturePosition.x, choice1PicturePosition.y);
         textureProgram.useProgram();
-        textureProgram.setUniforms(modelProjectionMatrix, texture);
-        pictureFrame.bindData(textureProgram);
-        pictureFrame.draw();
+        textureProgram.setUniforms(modelProjectionMatrix, textureChoice1);
+        choice1Picture.bindData(textureProgram);
+        choice1Picture.draw();
+
+        positionObject2DInScene(choice2PicturePosition.x, choice2PicturePosition.y);
+        textureProgram.setUniforms(modelProjectionMatrix, textureChoice2);
+        choice2Picture.bindData(colorProgram);
+        choice2Picture.draw();
 
     }
 }
