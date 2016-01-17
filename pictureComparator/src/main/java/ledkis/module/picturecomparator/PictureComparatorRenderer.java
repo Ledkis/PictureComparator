@@ -1,6 +1,7 @@
 package ledkis.module.picturecomparator;
 
 import android.content.Context;
+import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -36,6 +37,19 @@ import static ledkis.module.picturecomparator.Constants.NORMALIZED_DEVICE_MAX_WI
 import static ledkis.module.picturecomparator.util.TextureHelper.TextureInfo;
 
 public class PictureComparatorRenderer implements Renderer {
+
+    public interface Callback {
+
+        void onHandleTouchPress(float normalizedX, float normalizedY);
+
+        void onHandleTouchDrag(float normalizedX, float normalizedY);
+
+        void onHandleTouchUp(float normalizedX, float normalizedY);
+
+        void onProgressChange(float progress);
+    }
+
+
     private final Context context;
 
     private final float[] projectionMatrix = new float[16];
@@ -64,25 +78,54 @@ public class PictureComparatorRenderer implements Renderer {
             cw1, cw2, // clip width factor
             ch1, ch2; // clip height factor
 
-    public PictureComparatorRenderer(Context context, float screenRatio) {
-        this.context = context;
+    private Callback callback;
 
-        this.screenRatio = screenRatio;
+    private GLSurfaceView glSurfaceView;
+
+    public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
+        this.context = context;
+        this.glSurfaceView = glSurfaceView;
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
         lastNormalizedX = normalizedX;
+
+        if (null != callback)
+            callback.onHandleTouchPress(normalizedX, normalizedY);
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
 
-        currentProgress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
+        float progress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
         lastNormalizedX = normalizedX;
 
-        updateLayout(currentProgress);
+        setLayout(progress);
+
+        if (null != callback)
+            callback.onHandleTouchDrag(normalizedX, normalizedY);
     }
 
-    private void updateLayout(float progress) {
+    public void handleTouchUp(float normalizedX, float normalizedY) {
+
+        float progress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
+        lastNormalizedX = normalizedX;
+
+        setLayout(progress);
+
+        if (null != callback)
+            callback.onHandleTouchUp(normalizedX, normalizedY);
+
+    }
+
+    private void setCurrentProgress(float progress) {
+        currentProgress = progress;
+        if (null != callback)
+            callback.onProgressChange(currentProgress);
+    }
+
+    public void setLayout(float progress) {
+        setCurrentProgress(progress);
+
         evalPicPosition(progress);
         evalPicWidth(progress);
         evalPicClipping(w1, w2);
@@ -90,30 +133,30 @@ public class PictureComparatorRenderer implements Renderer {
 
     private void evalPicPosition(float progress) {
         if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
-            x1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            x1 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, CENTER_CHOICE_X);
-            x2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            x2 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CHOICE2_START_X, MAX_NORMALIZED_DEVICE_X);
 
         } else {
-            x1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            x1 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, MIN_NORMALIZED_DEVICE_X);
-            x2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            x2 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CHOICE2_START_X, CENTER_CHOICE_X);
         }
     }
 
     private void evalPicWidth(float progress) {
         if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
-            w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            w1 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, NORMALIZED_DEVICE_MAX_WIDTH);
-            w2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            w2 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, 0f);
 
         } else {
-            w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            w1 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, 0f);
-            w2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+            w2 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, NORMALIZED_DEVICE_MAX_WIDTH);
 
         }
@@ -154,6 +197,10 @@ public class PictureComparatorRenderer implements Renderer {
         }
     }
 
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
     private void positionAndScaleObject2DInScene(float x, float y, float scaleXFactor, float scaleYFactor) {
         setIdentityM(modelMatrix, 0);
         translateM(modelMatrix, 0, x, y, 0f);
@@ -165,8 +212,7 @@ public class PictureComparatorRenderer implements Renderer {
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        currentProgress = PROGRESS_CENTER_VALUE;
-        lastNormalizedX = PROGRESS_CENTER_VALUE;
+        screenRatio = (float) glSurfaceView.getHeight() / (float) glSurfaceView.getWidth();
 
         textureChoice1Program = new TextureShaderProgram(context);
         textureChoice2Program = new TextureShaderProgram(context);
@@ -195,7 +241,7 @@ public class PictureComparatorRenderer implements Renderer {
         choice1Picture = new TextureRect2DFrameObject(pic1W, pic1H, NO_CLIP, NO_CLIP);
         choice2Picture = new TextureRect2DFrameObject(pic2W, pic2H, CENTER_CLIP, NO_CLIP);
 
-        updateLayout(currentProgress);
+        setLayout(PROGRESS_CENTER_VALUE);
     }
 
     @Override

@@ -5,27 +5,43 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-public class PictureComparatorLayout {
+public class PictureComparatorLayout extends RelativeLayout {
 
     /**
      * Hold a reference to our GLSurfaceView
      */
     private GLSurfaceView glSurfaceView;
+    private PictureComparatorRenderer pictureComparatorRenderer;
     private boolean rendererSet = false;
 
-    private Context context;
 
-    public PictureComparatorLayout(Context context, float screenRatio) {
-        glSurfaceView = new GLSurfaceView(context);
+    public PictureComparatorLayout(Context context) {
+        super(context);
+        initView();
+    }
 
-        this.context = context;
+    public PictureComparatorLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
 
-        final PictureComparatorRenderer pictureComparatorRenderer = new PictureComparatorRenderer
-                (context, screenRatio);
+    public PictureComparatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
+
+    public void initView() {
+        inflate(getContext(), R.layout.picture_comparator_layout, this);
+
+        glSurfaceView = (GLSurfaceView) findViewById(R.id.gl_surface_view);
+
+        pictureComparatorRenderer = new PictureComparatorRenderer(getContext(), glSurfaceView);
 
         if (supportsEs2()) {
             // ...
@@ -49,7 +65,7 @@ public class PictureComparatorLayout {
              * This hides our app from those devices which don't support OpenGL
              * ES 2.0.
              */
-            Toast.makeText(context, "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -88,6 +104,14 @@ public class PictureComparatorLayout {
                                                 normalizedX, normalizedY);
                                     }
                                 });
+                            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                                glSurfaceView.queueEvent(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        pictureComparatorRenderer.handleTouchUp(
+                                                normalizedX, normalizedY);
+                                    }
+                                });
                             }
 
                             return true;
@@ -98,10 +122,11 @@ public class PictureComparatorLayout {
                 });
     }
 
+
     public boolean supportsEs2() {
         // Check if the system supports OpenGL ES 2.0.
         ActivityManager activityManager =
-                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configurationInfo = activityManager
                 .getDeviceConfigurationInfo();
         // Even though the latest emulator supports OpenGL ES 2.0,
