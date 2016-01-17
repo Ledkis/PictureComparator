@@ -16,10 +16,11 @@ public class TextureRect2DFrameObject extends Rect2DFrame {
     private VertexArray textureVertexArray;
 
 
-    public TextureRect2DFrameObject(float width, float height, float clipValue) {
+    public TextureRect2DFrameObject(float width, float height, float clipWidthFactor, float
+            clipHeightFactor) {
         super(width, height);
 
-        clipTexture(clipValue);
+        clipTexture(clipWidthFactor, clipHeightFactor);
     }
 
     public void bindData(TextureShaderProgram textureProgram) {
@@ -37,20 +38,21 @@ public class TextureRect2DFrameObject extends Rect2DFrame {
                 0);
     }
 
-    public void clipTexture(float clipValue) {
+    public void clipTexture(float clipWidthFactor, float clipHeightFactor) {
         // Have to be between 0.5 and 1 to avoid inversion
-        clipValue = Utils.map(clipValue, 0f, 1f, 0.5f, 1f);
+        clipWidthFactor = Utils.map(clipWidthFactor, 0f, 1f, 0.5f, 1f);
+        clipHeightFactor = Utils.map(clipHeightFactor, 0f, 1f, 0.5f, 1f);
 
         final float[] TEXTURE_DATA = {
                 // Order of coordinates: S, T
 
                 // Triangle Fan
                 0.5f, 0.5f,
-                1f - clipValue, clipValue,
-                clipValue, clipValue,
-                clipValue, 1f - clipValue,
-                1f - clipValue, 1f - clipValue,
-                1f - clipValue, clipValue};
+                1f - clipWidthFactor, clipHeightFactor,
+                clipWidthFactor, clipHeightFactor,
+                clipWidthFactor, 1f - clipHeightFactor,
+                1f - clipWidthFactor, 1f - clipHeightFactor,
+                1f - clipWidthFactor, clipHeightFactor};
 
 
         textureVertexArray = new VertexArray(TEXTURE_DATA);

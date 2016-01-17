@@ -7,6 +7,7 @@ import ledkis.module.picturecomparator.util.Geometry2D.Rect2D;
 
 import static android.opengl.GLES20.GL_TRIANGLE_FAN;
 import static android.opengl.GLES20.glDrawArrays;
+import static ledkis.module.picturecomparator.Constants.GL_TRIANGLE_FAN_VERTTEX_NUMBER;
 
 class ObjectBuilder {
     private static final int FLOATS_PER_VERTEX = 3;
@@ -27,19 +28,11 @@ class ObjectBuilder {
 
 
     static GeneratedData createRect2DFrame(Rect2D rect2D) {
-        ObjectBuilder builder = new ObjectBuilder(6);
+        ObjectBuilder builder = new ObjectBuilder(GL_TRIANGLE_FAN_VERTTEX_NUMBER);
         builder.appendRect2D(rect2D);
         return builder.build();
     }
 
-
-    private static int sizeOfCircleInVertices(int numPoints) {
-        return 1 + (numPoints + 1);
-    }
-
-    private static int sizeOfOpenCylinderInVertices(int numPoints) {
-        return (numPoints + 1) * 2;
-    }
 
     private final float[] vertexData;
     private final List<DrawCommand> drawList = new ArrayList<DrawCommand>();

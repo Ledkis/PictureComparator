@@ -74,8 +74,11 @@ public class TextureHelper {
             glDeleteTextures(1, textureObjectIds, 0);
 
             return new TextureInfo(0, -1, -1);
-        } 
-        
+        }
+
+        TextureInfo textureInfo = new TextureInfo(textureObjectIds[0], bitmap.getWidth(), bitmap
+                .getHeight());
+
         // Bind to the texture in OpenGL
         glBindTexture(GL_TEXTURE_2D, textureObjectIds[0]);
 
@@ -98,9 +101,6 @@ public class TextureHelper {
         // and mipmap generation will work.
 
         glGenerateMipmap(GL_TEXTURE_2D);
-
-        TextureInfo textureInfo = new TextureInfo(textureObjectIds[0], bitmap.getWidth(), bitmap
-                .getHeight());
 
         // Recycle the bitmap, since its data has been loaded into
         // OpenGL.

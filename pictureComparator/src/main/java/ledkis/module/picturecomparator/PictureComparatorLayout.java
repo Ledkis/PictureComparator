@@ -19,12 +19,13 @@ public class PictureComparatorLayout {
 
     private Context context;
 
-    public PictureComparatorLayout(Context context) {
+    public PictureComparatorLayout(Context context, float screenRatio) {
         glSurfaceView = new GLSurfaceView(context);
 
         this.context = context;
 
-        final PictureComparatorRenderer pictureComparatorRenderer = new PictureComparatorRenderer(context);
+        final PictureComparatorRenderer pictureComparatorRenderer = new PictureComparatorRenderer
+                (context, screenRatio);
 
         if (supportsEs2()) {
             // ...
