@@ -8,5 +8,5 @@
  ! Visit http://www.pragmaticprogrammer.com/titles/kbogla for more book information.
 -->
 <resources>
-    <string name="app_name">Air Hockey</string>
+ <string name="app_name">Picture Comparator Example</string>
 </resources>

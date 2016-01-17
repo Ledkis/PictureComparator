@@ -7,7 +7,7 @@ import android.widget.Button;
 
 import ledkis.module.picturecomparator.PictureComparatorLayout;
 
-public class AirHockeyActivity extends Activity {
+public class MainActivity extends Activity {
 
     private PictureComparatorLayout pictureComparatorLayout;
 
