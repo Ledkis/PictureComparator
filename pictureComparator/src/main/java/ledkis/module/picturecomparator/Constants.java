@@ -45,6 +45,8 @@ public class Constants {
         public static final float X1 = 0.34f;
         public static final float Y1 = 1f;
 
+        public static final float CENTER_LINE_WIDTH = 0.01f;
+
     }
 
     public class LoggerConfig {

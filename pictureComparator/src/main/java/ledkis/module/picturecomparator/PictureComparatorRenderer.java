@@ -1,6 +1,7 @@
 package ledkis.module.picturecomparator;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
 import android.view.animation.Interpolator;
@@ -8,7 +9,9 @@ import android.view.animation.Interpolator;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import ledkis.module.picturecomparator.objects.Rect2DFrame;
 import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
+import ledkis.module.picturecomparator.programs.ColorShaderProgram;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
 import ledkis.module.picturecomparator.util.CubicBezierInterpolator;
 import ledkis.module.picturecomparator.util.TextureHelper;
@@ -26,6 +29,7 @@ import static android.opengl.Matrix.translateM;
 import static ledkis.module.picturecomparator.Constants.Layout.ANSWER_CHOICE_1;
 import static ledkis.module.picturecomparator.Constants.Layout.CENTER_CHOICE_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CENTER_CLIP;
+import static ledkis.module.picturecomparator.Constants.Layout.CENTER_LINE_WIDTH;
 import static ledkis.module.picturecomparator.Constants.Layout.CENTER_WIDTH;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE1_START_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE2_START_X;
@@ -67,11 +71,15 @@ public class PictureComparatorRenderer implements Renderer {
     private TextureRect2DFrameObject choice1Picture;
     private TextureRect2DFrameObject choice2Picture;
 
+    private Rect2DFrame centerLine;
+
     private TextureInfo choice1TextureInfo;
     private TextureInfo choice2TextureInfo;
 
     private TextureShaderProgram textureChoice1Program;
     private TextureShaderProgram textureChoice2Program;
+
+    private ColorShaderProgram colorShaderProgram;
 
     private float currentProgress;
     private float lastNormalizedX;
@@ -80,11 +88,15 @@ public class PictureComparatorRenderer implements Renderer {
 
     private float pic1Ratio, pic2Ratio, pic1W, pic1H, pic2W, pic2H;
 
-    float x1, x2,     // position
+    private float x1, x2,     // position
             w1, w2,   // width
             wf1, wf2, // width factor
             cw1, cw2, // clip width factor
             ch1, ch2; // clip height factor
+
+    private float centerX;
+
+    private int centerLineColor;
 
     private Callback callback;
 
@@ -105,6 +117,7 @@ public class PictureComparatorRenderer implements Renderer {
         this.animate = true;
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
+        centerLineColor = Color.WHITE;
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
@@ -161,6 +174,9 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     private void evalPicPosition(float progress) {
+
+        centerX = progress;
+
         if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
             x1 = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE,
                     MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, CENTER_CHOICE_X);
@@ -270,6 +286,9 @@ public class PictureComparatorRenderer implements Renderer {
         choice1Picture = new TextureRect2DFrameObject(pic1W, pic1H, NO_CLIP, NO_CLIP);
         choice2Picture = new TextureRect2DFrameObject(pic2W, pic2H, CENTER_CLIP, NO_CLIP);
 
+        centerLine = new Rect2DFrame(CENTER_LINE_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
+        colorShaderProgram = new ColorShaderProgram(context);
+
         setLayout(PROGRESS_CENTER_VALUE);
     }
 
@@ -306,6 +325,16 @@ public class PictureComparatorRenderer implements Renderer {
         textureChoice2Program.setUniforms(modelProjectionMatrix, choice2TextureInfo.id);
         choice2Picture.bindData(textureChoice2Program);
         choice2Picture.draw();
+
+        // CenterLine
+        positionAndScaleObject2DInScene(centerX, 0f, 1f, 1f);
+        colorShaderProgram.useProgram();
+        colorShaderProgram.setUniforms(modelProjectionMatrix,
+                (float) Color.red(centerLineColor) / 255,
+                (float) Color.green(centerLineColor) / 255,
+                (float) Color.blue(centerLineColor) / 255);
+        centerLine.bindData(colorShaderProgram);
+        centerLine.draw();
     }
 
     private void onReleaseAnimation() {
