@@ -27,6 +27,8 @@ import static ledkis.module.picturecomparator.Constants.Layout.CENTER_CLIP;
 import static ledkis.module.picturecomparator.Constants.Layout.CENTER_WIDTH;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE1_START_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE2_START_X;
+import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_THRESHOLD;
+import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
@@ -82,13 +84,23 @@ public class PictureComparatorRenderer implements Renderer {
 
     private GLSurfaceView glSurfaceView;
 
+    private boolean animate;
+    private boolean onAnimation;
+    private long animationStartTime;
+    private float finalValue;
+    private float releaseProgress;
+
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
+
+        this.animate = true;
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
         lastNormalizedX = normalizedX;
+
+        onAnimation = false;
 
         if (null != callback)
             callback.onHandleTouchPress(normalizedX, normalizedY);
@@ -98,6 +110,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         float progress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
         lastNormalizedX = normalizedX;
+
+        onAnimation = false;
 
         setLayout(progress);
 
@@ -109,6 +123,11 @@ public class PictureComparatorRenderer implements Renderer {
 
         float progress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
         lastNormalizedX = normalizedX;
+
+        onAnimation = true;
+        animationStartTime = System.currentTimeMillis();
+        releaseProgress = currentProgress;
+        finalValue = Utils.getFinalThresholdValue(progress, CHOICE_THRESHOLD);
 
         setLayout(progress);
 
@@ -245,7 +264,6 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     @Override
-
     public void onSurfaceChanged(GL10 glUnused, int width, int height) {
         // Set the OpenGL viewport to fill the entire surface.
         glViewport(0, 0, width, height);
@@ -257,6 +275,11 @@ public class PictureComparatorRenderer implements Renderer {
     public void onDrawFrame(GL10 glUnused) {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // ReleaseAnimation
+        if (animate && onAnimation) {
+            onReleaseAnimation();
+        }
 
         choice1Picture.clipTexture(cw1, ch1);
         choice2Picture.clipTexture(cw2, ch2);
@@ -273,5 +296,18 @@ public class PictureComparatorRenderer implements Renderer {
         textureChoice2Program.setUniforms(modelProjectionMatrix, choice2TextureInfo.id);
         choice2Picture.bindData(textureChoice2Program);
         choice2Picture.draw();
+    }
+
+    private void onReleaseAnimation() {
+        long t = System.currentTimeMillis() - animationStartTime;
+
+        float progress = Utils.map(t, 0f, FADE_TIME,
+                releaseProgress, finalValue);
+
+        setLayout(progress);
+
+        if (t > FADE_TIME) {
+            onAnimation = false;
+        }
     }
 }

@@ -30,5 +30,26 @@ public class Utils {
         return progress;
     }
 
+    public static float getFinalThresholdValue(float progress, float threshold) {
+        float finalValue;
+        final boolean overThreshold;
+        if (progress > PROGRESS_CENTER_VALUE) {
+            overThreshold = progress > threshold;
+            if (!overThreshold) {
+                finalValue = PROGRESS_CENTER_VALUE;
+            } else {
+                finalValue = MAX_ABS_PROGRESS_VALUE;
+            }
+        } else {
+            overThreshold = progress < -threshold;
+            if (!overThreshold) {
+                finalValue = PROGRESS_CENTER_VALUE;
+            } else {
+                finalValue = -MAX_ABS_PROGRESS_VALUE;
+            }
+        }
+
+        return finalValue;
+    }
 
 }
