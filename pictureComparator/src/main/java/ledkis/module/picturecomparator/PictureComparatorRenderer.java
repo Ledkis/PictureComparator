@@ -33,6 +33,8 @@ import static ledkis.module.picturecomparator.Constants.Layout.CENTER_LINE_WIDTH
 import static ledkis.module.picturecomparator.Constants.Layout.CENTER_WIDTH;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE1_START_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE2_START_X;
+import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_1_FINAL_PROGRESS_VALUE;
+import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_2_FINAL_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_THRESHOLD;
 import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
@@ -147,10 +149,7 @@ public class PictureComparatorRenderer implements Renderer {
         float progress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
         lastNormalizedX = normalizedX;
 
-        onAnimation = true;
-        animationStartTime = System.currentTimeMillis();
-        releaseProgress = currentProgress;
-        finalValue = Utils.getFinalThresholdValue(progress, CHOICE_THRESHOLD);
+        releaseAnimation(progress);
 
         setLayout(progress);
 
@@ -307,7 +306,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         // ReleaseAnimation
         if (animate && onAnimation) {
-            onReleaseAnimation();
+            onAnimation();
         }
 
         choice1Picture.clipTexture(cw1, ch1);
@@ -337,7 +336,7 @@ public class PictureComparatorRenderer implements Renderer {
         centerLine.draw();
     }
 
-    private void onReleaseAnimation() {
+    private void onAnimation() {
         long t = System.currentTimeMillis() - animationStartTime;
 
         float nt = interpolator.getInterpolation(Utils.map(t, 0f, FADE_TIME, 0f, 1f));
@@ -350,4 +349,33 @@ public class PictureComparatorRenderer implements Renderer {
             onAnimation = false;
         }
     }
+
+    private void releaseAnimation(float progress) {
+        onAnimation = true;
+        animationStartTime = System.currentTimeMillis();
+        releaseProgress = currentProgress;
+        finalValue = Utils.getFinalThresholdValue(progress, CHOICE_THRESHOLD);
+    }
+
+    public void openChoice1Animation() {
+        onAnimation = true;
+        animationStartTime = System.currentTimeMillis();
+        releaseProgress = currentProgress;
+        finalValue = CHOICE_1_FINAL_PROGRESS_VALUE;
+    }
+
+    public void openChoice2Animation() {
+        onAnimation = true;
+        animationStartTime = System.currentTimeMillis();
+        releaseProgress = currentProgress;
+        finalValue = CHOICE_2_FINAL_PROGRESS_VALUE;
+    }
+
+    public void closeAnimation() {
+        onAnimation = true;
+        animationStartTime = System.currentTimeMillis();
+        releaseProgress = currentProgress;
+        finalValue = PROGRESS_CENTER_VALUE;
+    }
+
 }

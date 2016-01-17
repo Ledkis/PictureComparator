@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ledkis.module.picturecomparator.PictureComparatorLayout
+
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/picture_comparator_layout"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10dp">
+    >
 
-</ledkis.module.picturecomparator.PictureComparatorLayout>
+    <ledkis.module.picturecomparator.PictureComparatorLayout
+
+        android:id="@+id/picture_comparator_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp">
+
+    </ledkis.module.picturecomparator.PictureComparatorLayout>
+
+    <Button
+        android:id="@+id/left_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="200dp"
+        android:text="Choice 1"
+        />
+
+    <Button
+        android:id="@+id/right_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+
+        android:layout_marginTop="200dp"
+        android:text="Choice 2"
+        />
+
+</RelativeLayout>

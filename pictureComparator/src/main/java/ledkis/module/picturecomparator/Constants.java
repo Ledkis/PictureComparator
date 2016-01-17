@@ -28,6 +28,9 @@ public class Constants {
         public static final int ANSWER_CHOICE_1 = 1;
         public static final int ANSWER_CHOICE_2 = 2;
 
+        public static final float CHOICE_1_FINAL_PROGRESS_VALUE = MAX_ABS_PROGRESS_VALUE;
+        public static final float CHOICE_2_FINAL_PROGRESS_VALUE = -MAX_ABS_PROGRESS_VALUE;
+
 
         public static final float CENTER_CHOICE_X = NORMALIZED_DEVICE_CENTER;
         public static final float CHOICE1_START_X = MIN_NORMALIZED_DEVICE_X / 2;

@@ -164,4 +164,19 @@ public class PictureComparatorLayout extends RelativeLayout {
         return rendererSet;
     }
 
+    public void openChoice1Animation() {
+        if (null != pictureComparatorRenderer)
+            pictureComparatorRenderer.openChoice1Animation();
+    }
+
+    public void openChoice2Animation() {
+        if (null != pictureComparatorRenderer)
+            pictureComparatorRenderer.openChoice2Animation();
+    }
+
+    public void closeAnimation() {
+        if (null != pictureComparatorRenderer)
+            pictureComparatorRenderer.closeAnimation();
+    }
+
 }
