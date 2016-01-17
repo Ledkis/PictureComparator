@@ -2,14 +2,12 @@ package ledkis.module.picturecomparator;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
-import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
-import ledkis.module.picturecomparator.util.Geometry2D.Point2D;
 import ledkis.module.picturecomparator.util.TextureHelper;
 import ledkis.module.picturecomparator.util.Utils;
 
@@ -22,14 +20,17 @@ import static android.opengl.Matrix.orthoM;
 import static android.opengl.Matrix.scaleM;
 import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
+import static ledkis.module.picturecomparator.Constants.Layout.ANSWER_CHOICE_1;
+import static ledkis.module.picturecomparator.Constants.Layout.CENTER_CHOICE_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CENTER_CLIP;
+import static ledkis.module.picturecomparator.Constants.Layout.CENTER_WIDTH;
+import static ledkis.module.picturecomparator.Constants.Layout.CHOICE1_START_X;
+import static ledkis.module.picturecomparator.Constants.Layout.CHOICE2_START_X;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
 import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_X;
-import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_Y;
 import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_X;
-import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_Y;
 import static ledkis.module.picturecomparator.Constants.NORMALIZED_DEVICE_MAX_HEIGHT;
 import static ledkis.module.picturecomparator.Constants.NORMALIZED_DEVICE_MAX_WIDTH;
 import static ledkis.module.picturecomparator.util.TextureHelper.TextureInfo;
@@ -58,10 +59,10 @@ public class PictureComparatorRenderer implements Renderer {
     private float pic1Ratio, pic2Ratio, pic1W, pic1H, pic2W, pic2H;
 
     float x1, x2,     // position
-            w1, w2, // width ratio
-            wf1, wf2, // width ratio
-            cw1, cw2, // clip width
-            ch1, ch2; // clip height
+            w1, w2,   // width
+            wf1, wf2, // width factor
+            cw1, cw2, // clip width factor
+            ch1, ch2; // clip height factor
 
     public PictureComparatorRenderer(Context context, float screenRatio) {
         this.context = context;
@@ -78,110 +79,79 @@ public class PictureComparatorRenderer implements Renderer {
         currentProgress = Utils.clipProgress(currentProgress + (normalizedX - lastNormalizedX));
         lastNormalizedX = normalizedX;
 
-//        if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(currentProgress)) {
-//            x1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, CENTER_CHOICE_X);
-//            x2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, CHOICE2_START_X, MAX_NORMALIZED_DEVICE_X);
-//
-//            wf1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, pic1W, NORMALIZED_DEVICE_MAX_WIDTH);
-//            wf2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, pic2W, 0f);
-//
-//        } else {
-//            x1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, MIN_NORMALIZED_DEVICE_X);
-//            x2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, CHOICE2_START_X, CENTER_CHOICE_X);
-//
-//            wf1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, pic1W, 0f);
-//            wf2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, pic2W, NORMALIZED_DEVICE_MAX_WIDTH);
-//
-//        }
-//
-//        float choice1Ratio = NORMALIZED_DEVICE_MAX_HEIGHT / wf1;
-//
-//        if(pic1Ratio > choice1Ratio){
-//            cw1 = NO_CLIP;
-//            ch1 = (NORMALIZED_DEVICE_MAX_HEIGHT*100) / choice1TextureInfo.height;
-//        } else {
-//            cw1 = (NORMALIZED_DEVICE_MAX_WIDTH*100) / choice1TextureInfo.width;
-//            ch1 = NO_CLIP;
-//        }
-//
-//        float choice2Ratio = NORMALIZED_DEVICE_MAX_HEIGHT / wf2;
-//
-//        if(pic2Ratio > choice2Ratio){
-//            cw2 = NO_CLIP;
-//            ch2 = (NORMALIZED_DEVICE_MAX_HEIGHT*100) / choice2TextureInfo.height;
-//        } else {
-//            cw2 = (NORMALIZED_DEVICE_MAX_WIDTH*100) / choice2TextureInfo.width;
-//            ch2 = NO_CLIP;
-//        }
-//
-//        choice1Picture.clipTexture(cw1, ch1);
-//        choice2Picture.clipTexture(cw2, ch2);
-//        Log.d("XXX", "wf1: " + wf1);
-//
-//        wf1 = (NORMALIZED_DEVICE_MAX_WIDTH*100)/wf1;
-//        wf2 = (NORMALIZED_DEVICE_MAX_WIDTH*100)/wf1;
+        updateLayout(currentProgress);
+    }
 
+    private void updateLayout(float progress) {
+        evalPicPosition(progress);
+        evalPicWidth(progress);
+        evalPicClipping(w1, w2);
+    }
 
-        // Picture 1
+    private void evalPicPosition(float progress) {
+        if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
+            x1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, CENTER_CHOICE_X);
+            x2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CHOICE2_START_X, MAX_NORMALIZED_DEVICE_X);
 
+        } else {
+            x1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CHOICE1_START_X, MIN_NORMALIZED_DEVICE_X);
+            x2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CHOICE2_START_X, CENTER_CHOICE_X);
+        }
+    }
 
-//        if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(currentProgress)) {
-//            w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, pic1W, NORMALIZED_DEVICE_MAX_WIDTH);
-//        } else {
-//            w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-//                    MAX_ABS_PROGRESS_VALUE, pic1W, 0f);
-//        }
+    private void evalPicWidth(float progress) {
+        if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
+            w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, NORMALIZED_DEVICE_MAX_WIDTH);
+            w2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, 0f);
 
-        w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
-                MAX_ABS_PROGRESS_VALUE, 2 * NORMALIZED_DEVICE_MAX_WIDTH, 0f);
+        } else {
+            w1 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, 0f);
+            w2 = Utils.map(Math.abs(currentProgress), PROGRESS_CENTER_VALUE,
+                    MAX_ABS_PROGRESS_VALUE, CENTER_WIDTH, NORMALIZED_DEVICE_MAX_WIDTH);
+
+        }
 
         wf1 = w1 / pic1W;
+        wf2 = w2 / pic2W;
+    }
 
-        float choice1Ratio = (NORMALIZED_DEVICE_MAX_WIDTH * NORMALIZED_DEVICE_MAX_HEIGHT) / (w1);
+    private void evalPicClipping(float pic1Width, float pic2Width) {
 
+        // Pic1
+        float choice1Ratio = (NORMALIZED_DEVICE_MAX_WIDTH * NORMALIZED_DEVICE_MAX_HEIGHT) / (pic1Width);
 
         cw1 = NO_CLIP;
-        ch1 = (0.5f * pic1Ratio * w1) / NORMALIZED_DEVICE_MAX_HEIGHT;
+        ch1 = (0.5f * pic1Ratio * pic1Width) / NORMALIZED_DEVICE_MAX_HEIGHT;
 
         if (pic1Ratio > choice1Ratio) {
             cw1 = NO_CLIP;
-            ch1 = NORMALIZED_DEVICE_MAX_HEIGHT / (0.5f * pic1Ratio * w1);
+            ch1 = NORMALIZED_DEVICE_MAX_HEIGHT / (0.5f * pic1Ratio * pic1Width);
         } else {
-            cw1 = (0.5f * pic1Ratio * w1) / (NORMALIZED_DEVICE_MAX_WIDTH);
+            cw1 = (0.5f * pic1Ratio * pic1Width) / (NORMALIZED_DEVICE_MAX_WIDTH);
             ch1 = NO_CLIP;
         }
 
-        Log.d("XXX", "currentProgress: " + Math.abs(currentProgress) +
-                        ", w1: " + w1 +
-                        ", wf1: " + wf1 +
-                        ", cw1: " + cw1 +
-                        ", ch1: " + ch1 + "" +
-                        ", pic1Ratio: " + pic1Ratio +
-                        ", choice1Ratio: " + choice1Ratio
+        // Pic2
+        float choice2Ratio = (NORMALIZED_DEVICE_MAX_WIDTH * NORMALIZED_DEVICE_MAX_HEIGHT) /
+                (pic2Width);
 
-        );
+        cw2 = NO_CLIP;
+        ch2 = (0.5f * pic2Ratio * pic2Width) / NORMALIZED_DEVICE_MAX_HEIGHT;
 
-    }
-
-    private Point2D getNewPosition(float normalizedX, float normalizedY) {
-        Point2D touchedPoint = new Point2D(normalizedX, normalizedY);
-
-        return new Point2D(
-                Utils.clamp(touchedPoint.x,
-                        MIN_NORMALIZED_DEVICE_X + choice1Picture.width / 2,
-                        MAX_NORMALIZED_DEVICE_X - choice1Picture.width / 2),
-                Utils.clamp(touchedPoint.y,
-                        MIN_NORMALIZED_DEVICE_Y + choice1Picture.height / 2,
-                        MAX_NORMALIZED_DEVICE_Y - choice1Picture.height / 2));
+        if (pic2Ratio > choice2Ratio) {
+            cw2 = NO_CLIP;
+            ch2 = NORMALIZED_DEVICE_MAX_HEIGHT / (0.5f * pic2Ratio * pic2Width);
+        } else {
+            cw2 = (0.5f * pic2Ratio * pic2Width) / (NORMALIZED_DEVICE_MAX_WIDTH);
+            ch2 = NO_CLIP;
+        }
     }
 
     private void positionAndScaleObject2DInScene(float x, float y, float scaleXFactor, float scaleYFactor) {
@@ -222,13 +192,10 @@ public class PictureComparatorRenderer implements Renderer {
             pic2H = (NORMALIZED_DEVICE_MAX_WIDTH / pic2Ratio) * screenRatio;
         }
 
-        Log.d("XXX", "pic1W: " + pic1W);
-        Log.d("XXX", "pic1H: " + pic1H);
-        Log.d("XXX", "pic1Ratio: " + pic1Ratio);
-
         choice1Picture = new TextureRect2DFrameObject(pic1W, pic1H, NO_CLIP, NO_CLIP);
         choice2Picture = new TextureRect2DFrameObject(pic2W, pic2H, CENTER_CLIP, NO_CLIP);
 
+        updateLayout(currentProgress);
     }
 
     @Override
@@ -237,21 +204,7 @@ public class PictureComparatorRenderer implements Renderer {
         // Set the OpenGL viewport to fill the entire surface.
         glViewport(0, 0, width, height);
 
-//        // create  an  orthographic  projection  matrix
-//        final float aspectRatio = width > height ?
-//                (float) width / (float) height :
-//                (float) height / (float) width;
-//
-//        if (width > height) {
-//            // Landscape
-//            orthoM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
-//        } else {
-//            // Portrait or square
-//            orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
-//        }
-
         orthoM(projectionMatrix, 0, -1f, 1f, -1f, 1f, -1f, 1f);
-
     }
 
     @Override
@@ -259,21 +212,20 @@ public class PictureComparatorRenderer implements Renderer {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
 
-
         choice1Picture.clipTexture(cw1, ch1);
+        choice2Picture.clipTexture(cw2, ch2);
 
-        positionAndScaleObject2DInScene(0f, 0f, wf1, 1f);
+        positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
         textureChoice1Program.useProgram();
         textureChoice1Program.setUniforms(modelProjectionMatrix, choice1TextureInfo.id);
         choice1Picture.bindData(textureChoice1Program);
         choice1Picture.draw();
 
         // Picture 2
-//        positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
-//        textureChoice2Program.useProgram();
-//        textureChoice2Program.setUniforms(modelProjectionMatrix, choice2TextureInfo.id);
-//        choice2Picture.bindData(textureChoice2Program);
-//        choice2Picture.draw();
-
+        positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
+        textureChoice2Program.useProgram();
+        textureChoice2Program.setUniforms(modelProjectionMatrix, choice2TextureInfo.id);
+        choice2Picture.bindData(textureChoice2Program);
+        choice2Picture.draw();
     }
 }

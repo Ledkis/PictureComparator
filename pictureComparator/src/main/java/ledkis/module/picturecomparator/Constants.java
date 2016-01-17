@@ -33,8 +33,7 @@ public class Constants {
         public static final float CHOICE1_START_X = MIN_NORMALIZED_DEVICE_X / 2;
         public static final float CHOICE2_START_X = MAX_NORMALIZED_DEVICE_X / 2;
 
-        public static final float CHOICE1_START_WIDTH = NORMALIZED_DEVICE_MAX_WIDTH;
-        public static final float CHOICE2_START_WIDTH = NORMALIZED_DEVICE_MAX_WIDTH;
+        public static final float CENTER_WIDTH = NORMALIZED_DEVICE_MAX_WIDTH / 2;
 
     }
 
