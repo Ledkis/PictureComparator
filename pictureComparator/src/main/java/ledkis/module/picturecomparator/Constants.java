@@ -38,6 +38,13 @@ public class Constants {
         public static final int FADE_TIME = 1000;
         public static final float CHOICE_THRESHOLD = 0.5f;
 
+        // Bezier interpolation
+        // http://cubic-bezier.com/#.16,.42,.34,1
+        public static final float X0 = 0.16f;
+        public static final float Y0 = 0.42f;
+        public static final float X1 = 0.34f;
+        public static final float Y1 = 1f;
+
     }
 
     public class LoggerConfig {

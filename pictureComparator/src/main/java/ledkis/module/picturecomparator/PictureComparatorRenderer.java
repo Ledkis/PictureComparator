@@ -3,12 +3,14 @@ package ledkis.module.picturecomparator;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
+import android.view.animation.Interpolator;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
+import ledkis.module.picturecomparator.util.CubicBezierInterpolator;
 import ledkis.module.picturecomparator.util.TextureHelper;
 import ledkis.module.picturecomparator.util.Utils;
 
@@ -32,6 +34,10 @@ import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
+import static ledkis.module.picturecomparator.Constants.Layout.X0;
+import static ledkis.module.picturecomparator.Constants.Layout.X1;
+import static ledkis.module.picturecomparator.Constants.Layout.Y0;
+import static ledkis.module.picturecomparator.Constants.Layout.Y1;
 import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_X;
 import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_X;
 import static ledkis.module.picturecomparator.Constants.NORMALIZED_DEVICE_MAX_HEIGHT;
@@ -90,11 +96,15 @@ public class PictureComparatorRenderer implements Renderer {
     private float finalValue;
     private float releaseProgress;
 
+    private Interpolator interpolator;
+
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
 
         this.animate = true;
+
+        interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
@@ -301,8 +311,9 @@ public class PictureComparatorRenderer implements Renderer {
     private void onReleaseAnimation() {
         long t = System.currentTimeMillis() - animationStartTime;
 
-        float progress = Utils.map(t, 0f, FADE_TIME,
-                releaseProgress, finalValue);
+        float nt = interpolator.getInterpolation(Utils.map(t, 0f, FADE_TIME, 0f, 1f));
+
+        float progress = Utils.map(nt, 0f, 1f, releaseProgress, finalValue);
 
         setLayout(progress);
 
