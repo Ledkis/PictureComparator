@@ -5,11 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import ledkis.module.picturecomparator.PictureComparatorLayout;
+import ledkis.module.picturecomparator.GLPictureComparatorLayout;
 
 public class MainActivity extends Activity {
 
-    private PictureComparatorLayout pictureComparatorLayout;
+    private GLPictureComparatorLayout GLPictureComparatorLayout;
 
     private Button leftButton;
     private Button rightButton;
@@ -20,21 +20,21 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        pictureComparatorLayout = (PictureComparatorLayout) findViewById(R.id.picture_comparator_layout);
+        GLPictureComparatorLayout = (GLPictureComparatorLayout) findViewById(R.id.gl_picture_comparator_layout);
         leftButton = (Button) findViewById(R.id.left_button);
         rightButton = (Button) findViewById(R.id.right_button);
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pictureComparatorLayout.openChoice1Animation();
+                GLPictureComparatorLayout.openChoice1Animation();
             }
         });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pictureComparatorLayout.openChoice2Animation();
+                GLPictureComparatorLayout.openChoice2Animation();
             }
         });
 
@@ -44,14 +44,14 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
-        pictureComparatorLayout.pause();
+        GLPictureComparatorLayout.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        pictureComparatorLayout.resume();
+        GLPictureComparatorLayout.resume();
     }
 
 }

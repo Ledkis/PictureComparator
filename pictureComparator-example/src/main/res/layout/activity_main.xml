@@ -7,14 +7,14 @@
     android:layout_height="match_parent"
     >
 
-    <ledkis.module.picturecomparator.PictureComparatorLayout
+    <ledkis.module.picturecomparator.GLPictureComparatorLayout
 
-        android:id="@+id/picture_comparator_layout"
+        android:id="@+id/gl_picture_comparator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="10dp">
 
-    </ledkis.module.picturecomparator.PictureComparatorLayout>
+    </ledkis.module.picturecomparator.GLPictureComparatorLayout>
 
     <Button
         android:id="@+id/left_button"

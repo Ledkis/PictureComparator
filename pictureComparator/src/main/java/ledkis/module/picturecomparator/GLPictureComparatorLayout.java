@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-public class PictureComparatorLayout extends RelativeLayout {
+public class GLPictureComparatorLayout extends RelativeLayout {
 
     /**
      * Hold a reference to our GLSurfaceView
@@ -21,17 +21,17 @@ public class PictureComparatorLayout extends RelativeLayout {
     private boolean rendererSet = false;
 
 
-    public PictureComparatorLayout(Context context) {
+    public GLPictureComparatorLayout(Context context) {
         super(context);
         initView();
     }
 
-    public PictureComparatorLayout(Context context, AttributeSet attrs) {
+    public GLPictureComparatorLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView();
     }
 
-    public PictureComparatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public GLPictureComparatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
     }
