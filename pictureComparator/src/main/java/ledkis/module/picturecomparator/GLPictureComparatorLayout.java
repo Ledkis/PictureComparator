@@ -190,6 +190,10 @@ public class GLPictureComparatorLayout extends RelativeLayout {
             render.setPicture(new TextureHelper.TextureChange(getContext(), imageAssetName), pictureClass);
     }
 
+    public void deleteTexture(int pictureClass){
+        render.deleteTexture(pictureClass);
+    }
+
     public void pause() {
         if (rendererSet) {
             glSurfaceView.onPause();
@@ -226,5 +230,4 @@ public class GLPictureComparatorLayout extends RelativeLayout {
         if (null != render)
             render.closeAnimation();
     }
-
 }

@@ -308,6 +308,17 @@ public class PictureComparatorRenderer implements Renderer {
         Utils.v(TAG, "texture1Loaded: " + choice1Texture.getId() + ", " + pic1W + "x" + pic1H);
     }
 
+    public void deleteTexture(int pictureClass){
+        if (PICTURE_CLASS_1 == pictureClass) {
+            choice1Texture.setBitmap(null);
+            choice1Picture = null;
+        } else {
+            choice2Texture.setBitmap(null);
+            choice2Picture = null;
+        }
+        setLayout(currentProgress);
+    }
+
     private void texture2Loaded(float layoutRatio) {
         pic2Ratio = (float) choice2Texture.getHeight() / (float) choice2Texture.getWidth();
 

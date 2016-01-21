@@ -81,10 +81,7 @@ public class MainActivity extends Activity {
         bottomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                glPictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
-
-                bottomButtonFlag = !bottomButtonFlag;
+                glPictureComparatorLayout.deleteTexture(PICTURE_CLASS_1);
             }
         });
 
