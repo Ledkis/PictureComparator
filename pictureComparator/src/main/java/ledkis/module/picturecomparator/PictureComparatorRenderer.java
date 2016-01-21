@@ -41,6 +41,7 @@ import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_THRESHOLD;
 import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
+import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_2;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.X0;
 import static ledkis.module.picturecomparator.Constants.Layout.X1;
@@ -182,8 +183,8 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void setLayout(float progress) {
 
-        boolean pic1 = null != choice1Picture;
-        boolean pic2 = null != choice2Picture;
+        boolean pic1 = isTexture1Loaded();
+        boolean pic2 = isTexture2Loaded();
 
         if (!pic1 || !pic2) {
             centerLine = null;
@@ -308,15 +309,43 @@ public class PictureComparatorRenderer implements Renderer {
         Utils.v(TAG, "texture1Loaded: " + choice1Texture.getId() + ", " + pic1W + "x" + pic1H);
     }
 
+    public boolean isTexture1Loaded(){
+        return null != choice1Picture;
+    }
+
+    public boolean isTexture2Loaded(){
+        return null != choice2Picture;
+    }
+
     public void deleteTexture(int pictureClass){
         if (PICTURE_CLASS_1 == pictureClass) {
-            choice1Texture.setBitmap(null);
-            choice1Picture = null;
+            if(isTexture1Loaded()) {
+                choice1Texture.getBitmap().recycle();
+                choice1Texture.setBitmap(null);
+                choice1Picture = null;
+            }
         } else {
-            choice2Texture.setBitmap(null);
-            choice2Picture = null;
+            if(isTexture2Loaded()) {
+                choice2Texture.getBitmap().recycle();
+                choice2Texture.setBitmap(null);
+                choice2Picture = null;
+            }
         }
         setLayout(currentProgress);
+    }
+
+    public void swapeTextures(){
+        // TODO moche
+        if(isTexture1Loaded() && isTexture2Loaded()) {
+            Bitmap texture1Bitmap = choice1Texture.getBitmap();
+            TextureChange texture2Change = new TextureChange(texture1Bitmap.copy(texture1Bitmap.getConfig(), true));
+
+            Bitmap texture2Bitmap = choice2Texture.getBitmap();
+            TextureChange texture1Change = new TextureChange(texture2Bitmap.copy(texture2Bitmap.getConfig(), true));
+
+            setPicture(texture1Change, PICTURE_CLASS_1);
+            setPicture(texture2Change, PICTURE_CLASS_2);
+        }
     }
 
     private void texture2Loaded(float layoutRatio) {

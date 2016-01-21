@@ -36,12 +36,40 @@
         />
 
     <Button
+        android:id="@+id/upLeftButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+
+        android:text="delete1"
+        />
+
+    <Button
+        android:id="@+id/upButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+
+        android:text="swape"
+        />
+
+    <Button
+        android:id="@+id/upRightButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+
+        android:text="delete2"
+        />
+
+    <Button
         android:id="@+id/bottomLeftButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
 
-        android:layout_marginTop="200dp"
         android:text="change"
         />
 
@@ -52,8 +80,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
 
-        android:layout_marginTop="200dp"
-        android:text="delete1"
+        android:text="add"
         />
 
     <Button
@@ -63,7 +90,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
 
-        android:layout_marginTop="200dp"
         android:text="visibility"
         />
 

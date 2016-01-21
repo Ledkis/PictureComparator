@@ -15,6 +15,9 @@ import android.widget.Toast;
 import ledkis.module.picturecomparator.util.TextureHelper;
 import ledkis.module.picturecomparator.util.Utils;
 
+import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_1;
+import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_2;
+
 public class GLPictureComparatorLayout extends RelativeLayout {
 
     public static final String TAG = "GLPictureComparatorLayout";
@@ -192,6 +195,10 @@ public class GLPictureComparatorLayout extends RelativeLayout {
 
     public void deleteTexture(int pictureClass){
         render.deleteTexture(pictureClass);
+    }
+
+    public void swapeTextures(){
+        render.swapeTextures();
     }
 
     public void pause() {
