@@ -50,9 +50,15 @@ public class Constants {
 
         public static final float CENTER_LINE_WIDTH = 0.01f;
 
+        public static final int PICTURE_CLASS_1 = 1;
+        public static final int PICTURE_CLASS_2 = 2;
+
     }
 
     public class LoggerConfig {
+
+        public static final String TAG = "GLPictureComparator";
+
         public static final boolean ON = true;
     }
 }

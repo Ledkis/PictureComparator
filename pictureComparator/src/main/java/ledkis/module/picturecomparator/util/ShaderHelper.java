@@ -1,7 +1,5 @@
 package ledkis.module.picturecomparator.util;
 
-import android.util.Log;
-
 import ledkis.module.picturecomparator.Constants;
 
 import static android.opengl.GLES20.GL_COMPILE_STATUS;
@@ -24,7 +22,8 @@ import static android.opengl.GLES20.glShaderSource;
 import static android.opengl.GLES20.glValidateProgram;
 
 public class ShaderHelper {
-    private static final String TAG = "ShaderHelper";
+
+    public static final String TAG = "ShaderHelper";
 
     /**
      * Loads and compiles a vertex shader, returning the OpenGL object ID.
@@ -48,9 +47,7 @@ public class ShaderHelper {
         final int shaderObjectId = glCreateShader(type);
 
         if (shaderObjectId == 0) {
-            if (Constants.LoggerConfig.ON) {
-                Log.w(TAG, "Could not create new shader.");
-            }
+            Utils.w(TAG, "Could not create new shader.");
 
             return 0;
         }
@@ -64,22 +61,18 @@ public class ShaderHelper {
         // Get the compilation status.
         final int[] compileStatus = new int[1];
         glGetShaderiv(shaderObjectId, GL_COMPILE_STATUS,
-            compileStatus, 0);
+                compileStatus, 0);
 
-        if (Constants.LoggerConfig.ON) {
-            // Print the shader info log to the Android log output.
-            Log.v(TAG, "Results of compiling source:" + "\n" + shaderCode
+        // Print the shader info log to the Android log output.
+        Utils.w(TAG, "Results of compiling source:" + "\n" + shaderCode
                 + "\n:" + glGetShaderInfoLog(shaderObjectId));
-        }
 
         // Verify the compile status.
         if (compileStatus[0] == 0) {
             // If it failed, delete the shader object.
             glDeleteShader(shaderObjectId);
 
-            if (Constants.LoggerConfig.ON) {
-                Log.w(TAG, "Compilation of shader failed.");
-            }
+            Utils.w(TAG, "Compilation of shader failed.");
 
             return 0;
         }
@@ -98,9 +91,7 @@ public class ShaderHelper {
         final int programObjectId = glCreateProgram();
 
         if (programObjectId == 0) {
-            if (Constants.LoggerConfig.ON) {
-                Log.w(TAG, "Could not create new program");
-            }
+            Utils.w(TAG, "Could not create new program");
 
             return 0;
         }
@@ -117,24 +108,20 @@ public class ShaderHelper {
         // Get the link status.
         final int[] linkStatus = new int[1];
         glGetProgramiv(programObjectId, GL_LINK_STATUS,
-            linkStatus, 0);
+                linkStatus, 0);
 
-        if (Constants.LoggerConfig.ON) {
-            // Print the program info log to the Android log output.
-            Log.v(
+        // Print the program info log to the Android log output.
+        Utils.w(
                 TAG,
                 "Results of linking program:\n"
-                    + glGetProgramInfoLog(programObjectId));
-        }
+                        + glGetProgramInfoLog(programObjectId));
 
         // Verify the link status.
         if (linkStatus[0] == 0) {
             // If it failed, delete the program object.
             glDeleteProgram(programObjectId);
 
-            if (Constants.LoggerConfig.ON) {
-                Log.w(TAG, "Linking of program failed.");
-            }
+                Utils.w(TAG, "Linking of program failed.");
 
             return 0;
         }
@@ -151,9 +138,9 @@ public class ShaderHelper {
         glValidateProgram(programObjectId);
         final int[] validateStatus = new int[1];
         glGetProgramiv(programObjectId, GL_VALIDATE_STATUS,
-            validateStatus, 0);
-        Log.v(TAG, "Results of validating program: " + validateStatus[0]
-            + "\nLog:" + glGetProgramInfoLog(programObjectId));
+                validateStatus, 0);
+        Utils.w(TAG, "Results of validating program: " + validateStatus[0]
+                + "\nLog:" + glGetProgramInfoLog(programObjectId));
 
         return validateStatus[0] != 0;
     }
@@ -163,7 +150,7 @@ public class ShaderHelper {
      * program, returning the program ID.
      */
     public static int buildProgram(String vertexShaderSource,
-        String fragmentShaderSource) {
+                                   String fragmentShaderSource) {
         int program;
 
         // Compile the shaders.

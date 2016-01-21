@@ -1,5 +1,11 @@
 package ledkis.module.picturecomparator.util;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import ledkis.module.picturecomparator.Constants;
+
 import static ledkis.module.picturecomparator.Constants.Layout.ANSWER_CHOICE_1;
 import static ledkis.module.picturecomparator.Constants.Layout.ANSWER_CHOICE_2;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
@@ -50,6 +56,60 @@ public class Utils {
         }
 
         return finalValue;
+    }
+
+    /**
+     * http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
+     */
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    public static Bitmap decodeSampledBitmap(String filePath,
+                                             int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(filePath, options);
+    }
+
+    public static void v(String TAG, String msg) {
+        if (Constants.LoggerConfig.ON) {
+            Log.v(Constants.LoggerConfig.TAG, TAG + ": " + msg);
+        }
+    }
+
+    public static void w(String TAG, String msg){
+        if (Constants.LoggerConfig.ON) {
+            Log.w(Constants.LoggerConfig.TAG, TAG + ": " + msg);
+        }
+
     }
 
 }

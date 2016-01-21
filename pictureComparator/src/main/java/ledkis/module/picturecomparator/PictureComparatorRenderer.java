@@ -1,6 +1,7 @@
 package ledkis.module.picturecomparator;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
@@ -15,6 +16,7 @@ import ledkis.module.picturecomparator.programs.ColorShaderProgram;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
 import ledkis.module.picturecomparator.util.CubicBezierInterpolator;
 import ledkis.module.picturecomparator.util.TextureHelper;
+import ledkis.module.picturecomparator.util.TextureHelper.TextureChange;
 import ledkis.module.picturecomparator.util.Utils;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
@@ -44,13 +46,16 @@ import static ledkis.module.picturecomparator.Constants.Layout.X0;
 import static ledkis.module.picturecomparator.Constants.Layout.X1;
 import static ledkis.module.picturecomparator.Constants.Layout.Y0;
 import static ledkis.module.picturecomparator.Constants.Layout.Y1;
+import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_1;
 import static ledkis.module.picturecomparator.Constants.MAX_NORMALIZED_DEVICE_X;
 import static ledkis.module.picturecomparator.Constants.MIN_NORMALIZED_DEVICE_X;
 import static ledkis.module.picturecomparator.Constants.NORMALIZED_DEVICE_MAX_HEIGHT;
 import static ledkis.module.picturecomparator.Constants.NORMALIZED_DEVICE_MAX_WIDTH;
-import static ledkis.module.picturecomparator.util.TextureHelper.TextureInfo;
+import static ledkis.module.picturecomparator.util.TextureHelper.Texture;
 
 public class PictureComparatorRenderer implements Renderer {
+
+    public static final String TAG = "PictureComparatorRenderer";
 
     public interface Callback {
 
@@ -61,6 +66,10 @@ public class PictureComparatorRenderer implements Renderer {
         void onHandleTouchUp(float normalizedX, float normalizedY);
 
         void onProgressChange(float progress);
+    }
+
+    public interface OnSurfaceCreatedCallback {
+        void onSurfaceCreated();
     }
 
 
@@ -75,8 +84,8 @@ public class PictureComparatorRenderer implements Renderer {
 
     private Rect2DFrame centerLine;
 
-    private TextureInfo choice1TextureInfo;
-    private TextureInfo choice2TextureInfo;
+    private Texture choice1Texture;
+    private Texture choice2Texture;
 
     private TextureShaderProgram textureChoice1Program;
     private TextureShaderProgram textureChoice2Program;
@@ -86,7 +95,7 @@ public class PictureComparatorRenderer implements Renderer {
     private float currentProgress;
     private float lastNormalizedX;
 
-    private float screenRatio;
+    private float layoutRatio;
 
     private float pic1Ratio, pic2Ratio, pic1W, pic1H, pic2W, pic2H;
 
@@ -101,6 +110,7 @@ public class PictureComparatorRenderer implements Renderer {
     private int centerLineColor;
 
     private Callback callback;
+    private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
 
     private GLSurfaceView glSurfaceView;
 
@@ -112,6 +122,8 @@ public class PictureComparatorRenderer implements Renderer {
 
     private Interpolator interpolator;
 
+    boolean isSurfaceCreated;
+
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
@@ -120,6 +132,10 @@ public class PictureComparatorRenderer implements Renderer {
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
         centerLineColor = Color.WHITE;
+
+//        layoutRatio = 1.7777778f;
+
+        isSurfaceCreated = false;
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {
@@ -165,6 +181,25 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     public void setLayout(float progress) {
+
+        boolean pic1 = null != choice1Picture;
+        boolean pic2 = null != choice2Picture;
+
+        if (!pic1 || !pic2) {
+            centerLine = null;
+        } else {
+            if(null == centerLine)
+                setCenterLine();
+        }
+
+        if (pic1 && !pic2) {
+            progress = CHOICE_1_FINAL_PROGRESS_VALUE;
+        } else if (!pic1 && pic2) {
+            progress = CHOICE_2_FINAL_PROGRESS_VALUE;
+        } else if (!pic1 && !pic2) {
+            progress = PROGRESS_CENTER_VALUE;
+        }
+
         setCurrentProgress(progress);
 
         evalPicPosition(progress);
@@ -245,6 +280,54 @@ public class PictureComparatorRenderer implements Renderer {
         this.callback = callback;
     }
 
+    public void setOnSurfaceCreatedCallback(OnSurfaceCreatedCallback onSurfaceCreatedCallback) {
+        this.onSurfaceCreatedCallback = onSurfaceCreatedCallback;
+    }
+
+    public void setPicture(TextureChange textureChange, int pictureClass){
+        if (PICTURE_CLASS_1 == pictureClass) {
+            choice1Texture.setTextureChange(textureChange);
+        } else {
+            choice2Texture.setTextureChange(textureChange);
+        }
+    }
+
+    private void texture1Loaded(float layoutRatio) {
+        pic1Ratio = (float) choice1Texture.getHeight() / (float) choice1Texture.getWidth();
+
+        if (pic1Ratio > layoutRatio) {
+            pic1W = (NORMALIZED_DEVICE_MAX_HEIGHT / pic1Ratio) * layoutRatio;
+            pic1H = NORMALIZED_DEVICE_MAX_HEIGHT;
+        } else {
+            pic1W = NORMALIZED_DEVICE_MAX_WIDTH;
+            pic1H = (NORMALIZED_DEVICE_MAX_WIDTH / pic1Ratio) * layoutRatio;
+        }
+
+        choice1Picture = new TextureRect2DFrameObject(pic1W, pic1H, NO_CLIP, NO_CLIP);
+
+        Utils.v(TAG, "texture1Loaded: " + choice1Texture.getId() + ", " + pic1W + "x" + pic1H);
+    }
+
+    private void texture2Loaded(float layoutRatio) {
+        pic2Ratio = (float) choice2Texture.getHeight() / (float) choice2Texture.getWidth();
+
+        if (pic2Ratio > layoutRatio) {
+            pic2W = (NORMALIZED_DEVICE_MAX_HEIGHT / pic2Ratio) * layoutRatio;
+            pic2H = NORMALIZED_DEVICE_MAX_HEIGHT;
+        } else {
+            pic2W = NORMALIZED_DEVICE_MAX_WIDTH;
+            pic2H = (NORMALIZED_DEVICE_MAX_WIDTH / pic2Ratio) * layoutRatio;
+        }
+
+        choice2Picture = new TextureRect2DFrameObject(pic2W, pic2H, CENTER_CLIP, NO_CLIP);
+
+        Utils.v(TAG, "texture2Loaded: " + choice2Texture.getId() + ", " + pic2W + "x" + pic2H);
+    }
+
+    public void setCenterLine() {
+        centerLine = new Rect2DFrame(CENTER_LINE_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
+    }
+
     private void positionAndScaleObject2DInScene(float x, float y, float scaleXFactor, float scaleYFactor) {
         setIdentityM(modelMatrix, 0);
         translateM(modelMatrix, 0, x, y, 0f);
@@ -256,39 +339,21 @@ public class PictureComparatorRenderer implements Renderer {
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        screenRatio = (float) glSurfaceView.getHeight() / (float) glSurfaceView.getWidth();
+        layoutRatio = (float) glSurfaceView.getHeight() / (float) glSurfaceView.getWidth();
+
+        setLayout(PROGRESS_CENTER_VALUE);
+
+        choice1Texture = new Texture();
+        choice2Texture = new Texture();
 
         textureChoice1Program = new TextureShaderProgram(context);
         textureChoice2Program = new TextureShaderProgram(context);
-        choice1TextureInfo = TextureHelper.loadTexture(context, R.drawable.choice1);
-        choice2TextureInfo = TextureHelper.loadTexture(context, R.drawable.choice2);
-
-        pic1Ratio = (float) choice1TextureInfo.height / (float) choice1TextureInfo.width;
-        pic2Ratio = (float) choice2TextureInfo.height / (float) choice2TextureInfo.width;
-
-        if (pic1Ratio > screenRatio) {
-            pic1W = (NORMALIZED_DEVICE_MAX_HEIGHT / pic1Ratio) * screenRatio;
-            pic1H = NORMALIZED_DEVICE_MAX_HEIGHT;
-        } else {
-            pic1W = NORMALIZED_DEVICE_MAX_WIDTH;
-            pic1H = (NORMALIZED_DEVICE_MAX_WIDTH / pic1Ratio) * screenRatio;
-        }
-
-        if (pic2Ratio > screenRatio) {
-            pic2W = (NORMALIZED_DEVICE_MAX_HEIGHT / pic2Ratio) * screenRatio;
-            pic2H = NORMALIZED_DEVICE_MAX_HEIGHT;
-        } else {
-            pic2W = NORMALIZED_DEVICE_MAX_WIDTH;
-            pic2H = (NORMALIZED_DEVICE_MAX_WIDTH / pic2Ratio) * screenRatio;
-        }
-
-        choice1Picture = new TextureRect2DFrameObject(pic1W, pic1H, NO_CLIP, NO_CLIP);
-        choice2Picture = new TextureRect2DFrameObject(pic2W, pic2H, CENTER_CLIP, NO_CLIP);
-
-        centerLine = new Rect2DFrame(CENTER_LINE_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
         colorShaderProgram = new ColorShaderProgram(context);
 
-        setLayout(PROGRESS_CENTER_VALUE);
+        if (null != onSurfaceCreatedCallback)
+            onSurfaceCreatedCallback.onSurfaceCreated();
+
+        Utils.v(TAG, "onSurfaceCreated, layoutRatio: " + layoutRatio);
     }
 
     @Override
@@ -297,6 +362,8 @@ public class PictureComparatorRenderer implements Renderer {
         glViewport(0, 0, width, height);
 
         orthoM(projectionMatrix, 0, -1f, 1f, -1f, 1f, -1f, 1f);
+
+        Utils.v(TAG, "onSurfaceChanged w:" + width + " h:" + height);
     }
 
     @Override
@@ -304,36 +371,45 @@ public class PictureComparatorRenderer implements Renderer {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // ReleaseAnimation
+        // ReleaseAnimation & change texture
         if (animate && onAnimation) {
             onAnimation();
+        } else {
+            changeTexture();
         }
 
-        choice1Picture.clipTexture(cw1, ch1);
-        choice2Picture.clipTexture(cw2, ch2);
+        // Picture 1
+        if (null != choice1Picture && null != textureChoice1Program) {
 
-        positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
-        textureChoice1Program.useProgram();
-        textureChoice1Program.setUniforms(modelProjectionMatrix, choice1TextureInfo.id);
-        choice1Picture.bindData(textureChoice1Program);
-        choice1Picture.draw();
+            choice1Picture.clipTexture(cw1, ch1);
+            positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
+            textureChoice1Program.useProgram();
+            textureChoice1Program.setUniforms(modelProjectionMatrix, choice1Texture.getId());
+            choice1Picture.bindData(textureChoice1Program);
+            choice1Picture.draw();
+        }
 
         // Picture 2
-        positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
-        textureChoice2Program.useProgram();
-        textureChoice2Program.setUniforms(modelProjectionMatrix, choice2TextureInfo.id);
-        choice2Picture.bindData(textureChoice2Program);
-        choice2Picture.draw();
+        if (null != choice2Picture && null != textureChoice2Program) {
+            choice2Picture.clipTexture(cw2, ch2);
+            positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
+            textureChoice2Program.useProgram();
+            textureChoice2Program.setUniforms(modelProjectionMatrix, choice2Texture.getId());
+            choice2Picture.bindData(textureChoice2Program);
+            choice2Picture.draw();
+        }
 
         // CenterLine
-        positionAndScaleObject2DInScene(centerX, 0f, 1f, 1f);
-        colorShaderProgram.useProgram();
-        colorShaderProgram.setUniforms(modelProjectionMatrix,
-                (float) Color.red(centerLineColor) / 255,
-                (float) Color.green(centerLineColor) / 255,
-                (float) Color.blue(centerLineColor) / 255);
-        centerLine.bindData(colorShaderProgram);
-        centerLine.draw();
+        if (null != centerLine && null != colorShaderProgram) {
+            positionAndScaleObject2DInScene(centerX, 0f, 1f, 1f);
+            colorShaderProgram.useProgram();
+            colorShaderProgram.setUniforms(modelProjectionMatrix,
+                    (float) Color.red(centerLineColor) / 255,
+                    (float) Color.green(centerLineColor) / 255,
+                    (float) Color.blue(centerLineColor) / 255);
+            centerLine.bindData(colorShaderProgram);
+            centerLine.draw();
+        }
     }
 
     private void onAnimation() {
@@ -348,6 +424,24 @@ public class PictureComparatorRenderer implements Renderer {
         if (t > FADE_TIME) {
             onAnimation = false;
         }
+    }
+
+    private void changeTexture(){
+
+        boolean update = false;
+
+        if(choice1Texture.changeBitmap()){
+            texture1Loaded(layoutRatio);
+            update = true;
+        }
+
+        if(choice2Texture.changeBitmap()){
+            texture2Loaded(layoutRatio);
+            update = true;
+        }
+
+        if(update)
+            setLayout(currentProgress);
     }
 
     private void releaseAnimation(float progress) {
