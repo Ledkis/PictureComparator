@@ -123,8 +123,6 @@ public class PictureComparatorRenderer implements Renderer {
 
     private Interpolator interpolator;
 
-    boolean isSurfaceCreated;
-
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
@@ -136,7 +134,6 @@ public class PictureComparatorRenderer implements Renderer {
 
 //        layoutRatio = 1.7777778f;
 
-        isSurfaceCreated = false;
     }
 
     public void handleTouchPress(float normalizedX, float normalizedY) {

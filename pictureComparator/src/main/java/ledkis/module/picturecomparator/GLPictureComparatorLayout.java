@@ -52,12 +52,15 @@ public class GLPictureComparatorLayout extends RelativeLayout {
 
         glSurfaceView = (GLSurfaceView) findViewById(R.id.gl_surface_view);
 
-        render = new PictureComparatorRenderer(getContext(), glSurfaceView);
-
         if (supportsEs2()) {
             // ...
             // Request an OpenGL ES 2.0 compatible context.
             glSurfaceView.setEGLContextClientVersion(2);
+
+            //  http://stackoverflow.com/questions/14167319/android-opengl-demo-no-config-chosen
+            glSurfaceView.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
+
+            render = new PictureComparatorRenderer(getContext(), glSurfaceView);
 
             // Assign our renderer.
             glSurfaceView.setRenderer(render);
