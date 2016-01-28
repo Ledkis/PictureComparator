@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import ledkis.module.picturecomparator.GLPictureComparatorLayout;
 import ledkis.module.picturecomparator.PictureComparatorRenderer;
 
 import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_1;
@@ -13,7 +12,7 @@ import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_2;
 
 public class MainActivity extends Activity {
 
-    private GLPictureComparatorLayout glPictureComparatorLayout;
+    private PictureComparatorLayout pictureComparatorLayout;
 
     private Button leftButton;
     private Button rightButton;
@@ -36,7 +35,7 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        glPictureComparatorLayout = (GLPictureComparatorLayout) findViewById(R.id.gl_picture_comparator_layout);
+        pictureComparatorLayout = (PictureComparatorLayout) findViewById(R.id.gl_picture_comparator_layout);
         leftButton = (Button) findViewById(R.id.leftButton);
         rightButton = (Button) findViewById(R.id.rightButton);
 
@@ -48,25 +47,25 @@ public class MainActivity extends Activity {
         bottomButton = (Button) findViewById(R.id.bottomButton);
         bottomRightButton = (Button) findViewById(R.id.bottomRightButton);
 
-        glPictureComparatorLayout.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
+        pictureComparatorLayout.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
             @Override
             public void onSurfaceCreated() {
-                glPictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                glPictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
+                pictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
+                pictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
             }
         });
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.openChoice1Animation();
+                pictureComparatorLayout.openChoice1Animation();
             }
         });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.openChoice2Animation();
+                pictureComparatorLayout.openChoice2Animation();
             }
         });
 
@@ -74,21 +73,21 @@ public class MainActivity extends Activity {
         upLeftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.deleteTexture(PICTURE_CLASS_1);
+                pictureComparatorLayout.deleteTexture(PICTURE_CLASS_1);
             }
         });
 
         upButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.swapeTextures();
+                pictureComparatorLayout.swapeTextures();
             }
         });
 
         upRightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.deleteTexture(PICTURE_CLASS_2);
+                pictureComparatorLayout.deleteTexture(PICTURE_CLASS_2);
             }
         });
 
@@ -98,11 +97,11 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                 if(bottomLeftButtonFlag) {
-                    glPictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                    glPictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
+                    pictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
+                    pictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
                 } else {
-                    glPictureComparatorLayout.setPicture(MainActivity.this, "choice1-2.png", PICTURE_CLASS_1);
-                    glPictureComparatorLayout.setPicture(MainActivity.this, "choice2-2.png", PICTURE_CLASS_2);
+                    pictureComparatorLayout.setPicture(MainActivity.this, "choice1-2.png", PICTURE_CLASS_1);
+                    pictureComparatorLayout.setPicture(MainActivity.this, "choice2-2.png", PICTURE_CLASS_2);
                 }
 
                 bottomLeftButtonFlag = !bottomLeftButtonFlag;
@@ -112,8 +111,8 @@ public class MainActivity extends Activity {
         bottomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glPictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                glPictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
+                pictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
+                pictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
             }
         });
 
@@ -121,9 +120,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if(bottomRightButtonFlag)
-                    glPictureComparatorLayout.setVisibility(View.VISIBLE);
+                    pictureComparatorLayout.setVisibility(View.VISIBLE);
                 else
-                    glPictureComparatorLayout.setVisibility(View.GONE);
+                    pictureComparatorLayout.setVisibility(View.GONE);
 
                 bottomRightButtonFlag = !bottomRightButtonFlag;
             }
@@ -135,14 +134,14 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
-        glPictureComparatorLayout.pause();
+        pictureComparatorLayout.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        glPictureComparatorLayout.resume();
+        pictureComparatorLayout.resume();
     }
 
 }

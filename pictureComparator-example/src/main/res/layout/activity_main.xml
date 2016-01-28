@@ -7,14 +7,21 @@
     android:layout_height="match_parent"
     >
 
-    <ledkis.module.picturecomparator.GLPictureComparatorLayout
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="BACKGROUND"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:textColor="#ffffff"
+        android:background="#ff9900"/>
+
+    <ledkis.module.picturecomparator.example.PictureComparatorLayout
 
         android:id="@+id/gl_picture_comparator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="10dp">
-
-    </ledkis.module.picturecomparator.GLPictureComparatorLayout>
+        android:layout_margin="10dp"/>
 
     <Button
         android:id="@+id/leftButton"
