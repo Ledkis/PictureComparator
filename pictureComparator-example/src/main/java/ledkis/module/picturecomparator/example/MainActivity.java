@@ -1,6 +1,7 @@
 package ledkis.module.picturecomparator.example;
 
 import android.app.Activity;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +18,7 @@ public class MainActivity extends Activity {
     private GlPictureChoice glPictureChoice1;
     private GlPictureChoice glPictureChoice2;
 
+    private CameraPreviewLayout cameraPreviewLayout;
     private PictureComparatorLayout pictureComparatorLayout;
 
     private Button leftButton;
@@ -40,7 +42,9 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
+        cameraPreviewLayout = (CameraPreviewLayout) findViewById(R.id.cameraPreviewLayout);
         pictureComparatorLayout = (PictureComparatorLayout) findViewById(R.id.gl_picture_comparator_layout);
+
         leftButton = (Button) findViewById(R.id.leftButton);
         rightButton = (Button) findViewById(R.id.rightButton);
 
@@ -55,7 +59,29 @@ public class MainActivity extends Activity {
         glPictureChoice1 = new GlPictureChoice();
         glPictureChoice2 = new GlPictureChoice();
 
+        cameraPreviewLayout.init();
+
+        cameraPreviewLayout.setCallback(new CameraPreviewLayout.Callback() {
+            @Override
+            public void onCameraFailed(int error) {
+            }
+
+            @Override
+            public void onPictureTaken(byte[] picturesBytes, Camera camera) {
+            }
+        });
+
+
         pictureComparatorLayout.setGlPictureChoices(glPictureChoice1, glPictureChoice2);
+
+//        leftButton
+//                rightButton
+//        upLeftButton
+//                upButton
+//        upRightButton
+//                bottomLeftButton
+//        bottomButton
+//                bottomRightButton
 
         pictureComparatorLayout.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
             @Override
@@ -67,82 +93,100 @@ public class MainActivity extends Activity {
         });
 
         leftButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pictureComparatorLayout.openChoice1Animation();
-            }
-        });
+                                          @Override
+                                          public void onClick(View v) {
+                                              pictureComparatorLayout.openChoice1Animation();
+                                          }
+                                      }
+
+        );
 
         rightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pictureComparatorLayout.openChoice2Animation();
-            }
-        });
+                                           @Override
+                                           public void onClick(View v) {
+                                               pictureComparatorLayout.openChoice2Animation();
+                                           }
+                                       }
+
+        );
 
 
         upLeftButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                glPictureChoice1.deleteTexture();
-                pictureComparatorLayout.updateLayout();
-            }
-        });
+                                            @Override
+                                            public void onClick(View v) {
+                                                glPictureChoice1.deleteTexture();
+                                                pictureComparatorLayout.updateLayout();
+                                            }
+                                        }
+
+        );
 
         upButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pictureComparatorLayout.swapeTextures();
-            }
-        });
+                                        @Override
+                                        public void onClick(View v) {
+                                            pictureComparatorLayout.swapeTextures();
+                                        }
+                                    }
+
+        );
 
         upRightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                glPictureChoice2.deleteTexture();
-                pictureComparatorLayout.updateLayout();
-            }
-        });
+                                             @Override
+                                             public void onClick(View v) {
+                                                 glPictureChoice2.deleteTexture();
+                                                 pictureComparatorLayout.updateLayout();
+                                             }
+                                         }
+
+        );
 
 
         bottomLeftButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                                                @Override
+                                                public void onClick(View v) {
 
-                if(bottomLeftButtonFlag) {
-                    Utils.v(TAG, "drawable change");
-                    glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
-                    glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
-                } else {
-                    Utils.v(TAG, "assets change");
-                    glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, "choice1-2.png"));
-                    glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, "choice2-2.png"));
-                }
+                                                    if (bottomLeftButtonFlag) {
+                                                        Utils.v(TAG, "drawable change");
+                                                        glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
+                                                        glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
+                                                    } else {
+                                                        Utils.v(TAG, "assets change");
+                                                        glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, "choice1-2.png"));
+                                                        glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, "choice2-2.png"));
+                                                    }
 
-                bottomLeftButtonFlag = !bottomLeftButtonFlag;
-            }
-        });
+                                                    bottomLeftButtonFlag = !bottomLeftButtonFlag;
+                                                }
+                                            }
 
-        bottomButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Utils.v(TAG, "drawable change");
-                glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
-                glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
-            }
-        });
+        );
+
+        bottomButton.setOnClickListener(new View.OnClickListener()
+
+                                        {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Utils.v(TAG, "drawable change");
+                                                glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
+                                                glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
+                                            }
+                                        }
+
+        );
 
         bottomRightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(bottomRightButtonFlag)
-                    pictureComparatorLayout.setVisibility(View.VISIBLE);
-                else
-                    pictureComparatorLayout.setVisibility(View.GONE);
+                                                 @Override
+                                                 public void onClick(View v) {
+                                                     if (bottomRightButtonFlag)
+                                                         pictureComparatorLayout.setVisibility(View.VISIBLE);
+                                                     else
+                                                         pictureComparatorLayout.setVisibility(View.GONE);
 
-                bottomRightButtonFlag = !bottomRightButtonFlag;
-            }
-        });
+                                                     bottomRightButtonFlag = !bottomRightButtonFlag;
+                                                 }
+                                             }
+
+        );
 
     }
 
@@ -150,6 +194,7 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
+        cameraPreviewLayout.stopPreview();
         pictureComparatorLayout.pause();
     }
 
@@ -157,6 +202,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        cameraPreviewLayout.startPreview(this, Camera.CameraInfo.CAMERA_FACING_BACK);
         pictureComparatorLayout.resume();
     }
 

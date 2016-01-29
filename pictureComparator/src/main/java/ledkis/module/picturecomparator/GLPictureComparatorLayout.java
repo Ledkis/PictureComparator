@@ -176,12 +176,6 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         }
     }
 
-    public void bringToFront() {
-        if (rendererSet) {
-            bringToFront();
-        }
-    }
-
     public boolean isRendererSet() {
         return rendererSet;
     }
