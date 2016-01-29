@@ -3,7 +3,6 @@ package ledkis.module.picturecomparator;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
-import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -12,11 +11,7 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import ledkis.module.picturecomparator.util.TextureHelper;
 import ledkis.module.picturecomparator.util.Utils;
-
-import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_1;
-import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_2;
 
 public class GLPictureComparatorLayout extends RelativeLayout {
 
@@ -171,35 +166,6 @@ public class GLPictureComparatorLayout extends RelativeLayout {
                 || Build.MODEL.contains("Android SDK built for x86")));
     }
 
-    public void setPicture(int resourceId, int pictureClass) {
-        if(null !=render)
-            render.setPicture(new TextureHelper.TextureChange(getContext(), resourceId), pictureClass);
-    }
-
-    public void setPicture(Bitmap bitmap, int pictureClass) {
-        if(null !=render)
-            render.setPicture(new TextureHelper.TextureChange(bitmap), pictureClass);
-    }
-
-    public void setPicture(byte[] picturesBytes, int pictureClass) {
-        if(null !=render)
-            render.setPicture(new TextureHelper.TextureChange(picturesBytes), pictureClass);
-    }
-
-    public void setPicture(final String filePath, final int reqWidth, final int reqHeight, int pictureClass) {
-        if(null !=render)
-            render.setPicture(new TextureHelper.TextureChange(filePath, reqWidth, reqHeight), pictureClass);
-    }
-
-    public void setPicture(Context context, final String imageAssetName, int pictureClass) {
-        if(null !=render)
-            render.setPicture(new TextureHelper.TextureChange(getContext(), imageAssetName), pictureClass);
-    }
-
-    public void deleteTexture(int pictureClass){
-        render.deleteTexture(pictureClass);
-    }
-
     public void swapeTextures(){
         render.swapeTextures();
     }
@@ -240,4 +206,14 @@ public class GLPictureComparatorLayout extends RelativeLayout {
         if (null != render)
             render.closeAnimation();
     }
+
+    public void updateLayout() {
+        render.updateLayout();
+    }
+
+    public void setGlPictureChoices(GlPictureChoice glPictureChoice1, GlPictureChoice glPictureChoice2) {
+        render.setGlPictureChoice1(glPictureChoice1);
+        render.setGlPictureChoice2(glPictureChoice2);
+    }
+
 }

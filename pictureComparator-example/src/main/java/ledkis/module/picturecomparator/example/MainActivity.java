@@ -5,12 +5,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import ledkis.module.picturecomparator.GlPictureChoice;
 import ledkis.module.picturecomparator.PictureComparatorRenderer;
-
-import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_1;
-import static ledkis.module.picturecomparator.Constants.Layout.PICTURE_CLASS_2;
+import ledkis.module.picturecomparator.util.TextureChange;
+import ledkis.module.picturecomparator.util.Utils;
 
 public class MainActivity extends Activity {
+
+    public static final String TAG = "MainActivity";
+
+    private GlPictureChoice glPictureChoice1;
+    private GlPictureChoice glPictureChoice2;
 
     private PictureComparatorLayout pictureComparatorLayout;
 
@@ -47,11 +52,17 @@ public class MainActivity extends Activity {
         bottomButton = (Button) findViewById(R.id.bottomButton);
         bottomRightButton = (Button) findViewById(R.id.bottomRightButton);
 
+        glPictureChoice1 = new GlPictureChoice();
+        glPictureChoice2 = new GlPictureChoice();
+
+        pictureComparatorLayout.setGlPictureChoices(glPictureChoice1, glPictureChoice2);
+
         pictureComparatorLayout.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
             @Override
             public void onSurfaceCreated() {
-                pictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                pictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
+                glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
+                glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
+
             }
         });
 
@@ -73,7 +84,8 @@ public class MainActivity extends Activity {
         upLeftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pictureComparatorLayout.deleteTexture(PICTURE_CLASS_1);
+                glPictureChoice1.deleteTexture();
+                pictureComparatorLayout.updateLayout();
             }
         });
 
@@ -87,7 +99,8 @@ public class MainActivity extends Activity {
         upRightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pictureComparatorLayout.deleteTexture(PICTURE_CLASS_2);
+                glPictureChoice2.deleteTexture();
+                pictureComparatorLayout.updateLayout();
             }
         });
 
@@ -97,11 +110,13 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                 if(bottomLeftButtonFlag) {
-                    pictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                    pictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
+                    Utils.v(TAG, "drawable change");
+                    glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
+                    glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
                 } else {
-                    pictureComparatorLayout.setPicture(MainActivity.this, "choice1-2.png", PICTURE_CLASS_1);
-                    pictureComparatorLayout.setPicture(MainActivity.this, "choice2-2.png", PICTURE_CLASS_2);
+                    Utils.v(TAG, "assets change");
+                    glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, "choice1-2.png"));
+                    glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, "choice2-2.png"));
                 }
 
                 bottomLeftButtonFlag = !bottomLeftButtonFlag;
@@ -111,8 +126,9 @@ public class MainActivity extends Activity {
         bottomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pictureComparatorLayout.setPicture(R.drawable.choice1, PICTURE_CLASS_1);
-                pictureComparatorLayout.setPicture(R.drawable.choice2, PICTURE_CLASS_2);
+                Utils.v(TAG, "drawable change");
+                glPictureChoice1.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice1));
+                glPictureChoice2.setTextureChange(new TextureChange(MainActivity.this, R.drawable.choice2));
             }
         });
 

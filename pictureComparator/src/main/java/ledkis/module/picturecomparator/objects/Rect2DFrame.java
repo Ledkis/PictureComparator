@@ -42,4 +42,12 @@ public class Rect2DFrame {
             drawCommand.draw();
         }
     }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
 }
