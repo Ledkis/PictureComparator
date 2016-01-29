@@ -16,9 +16,4 @@ public class PictureComparatorLayout extends GLPictureComparatorLayout {
         super(context, attrs);
     }
 
-    public PictureComparatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-
 }

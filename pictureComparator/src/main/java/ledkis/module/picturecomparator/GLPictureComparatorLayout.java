@@ -3,24 +3,23 @@ package ledkis.module.picturecomparator;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import ledkis.module.picturecomparator.util.Utils;
 
-public class GLPictureComparatorLayout extends RelativeLayout {
+public class GLPictureComparatorLayout extends GLSurfaceView {
 
     public static final String TAG = "GLPictureComparatorLayout";
 
     /**
      * Hold a reference to our GLSurfaceView
      */
-    private GLSurfaceView glSurfaceView;
     private PictureComparatorRenderer render;
     private boolean rendererSet = false;
 
@@ -37,28 +36,21 @@ public class GLPictureComparatorLayout extends RelativeLayout {
         initView();
     }
 
-    public GLPictureComparatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initView();
-    }
-
     public void initView() {
-        inflate(getContext(), R.layout.picture_comparator_layout, this);
-
-        glSurfaceView = (GLSurfaceView) findViewById(R.id.gl_surface_view);
 
         if (supportsEs2()) {
             // ...
             // Request an OpenGL ES 2.0 compatible context.
-            glSurfaceView.setEGLContextClientVersion(2);
+            setEGLContextClientVersion(2);
 
             //  http://stackoverflow.com/questions/14167319/android-opengl-demo-no-config-chosen
-            glSurfaceView.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
+            setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+            getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
-            render = new PictureComparatorRenderer(getContext(), glSurfaceView);
+            render = new PictureComparatorRenderer(getContext(), this);
 
             // Assign our renderer.
-            glSurfaceView.setRenderer(render);
+            setRenderer(render);
             rendererSet = true;
 
             Utils.v(TAG, "rendererSet");
@@ -80,7 +72,7 @@ public class GLPictureComparatorLayout extends RelativeLayout {
             return;
         }
 
-        glSurfaceView.setOnTouchListener(
+        setOnTouchListener(
                 new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
@@ -100,7 +92,7 @@ public class GLPictureComparatorLayout extends RelativeLayout {
                             //  thread, we can call runOnUIThread() on our activity to post events on the main thread.
 
                             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                                glSurfaceView.queueEvent(new Runnable() {
+                                queueEvent(new Runnable() {
                                     @Override
                                     public void run() {
                                         render.handleTouchPress(
@@ -108,7 +100,7 @@ public class GLPictureComparatorLayout extends RelativeLayout {
                                     }
                                 });
                             } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                                glSurfaceView.queueEvent(new Runnable() {
+                                queueEvent(new Runnable() {
                                     @Override
                                     public void run() {
                                         render.handleTouchDrag(
@@ -116,7 +108,7 @@ public class GLPictureComparatorLayout extends RelativeLayout {
                                     }
                                 });
                             } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                                glSurfaceView.queueEvent(new Runnable() {
+                                queueEvent(new Runnable() {
                                     @Override
                                     public void run() {
                                         render.handleTouchUp(
@@ -172,20 +164,22 @@ public class GLPictureComparatorLayout extends RelativeLayout {
 
     public void pause() {
         if (rendererSet) {
-            glSurfaceView.onPause();
+            onPause();
             Utils.v(TAG, "pause");
         }
     }
 
     public void resume() {
         if (rendererSet) {
-            glSurfaceView.onResume();
+            onResume();
             Utils.v(TAG, "resume");
         }
     }
 
-    public GLSurfaceView getGlSurfaceView() {
-        return glSurfaceView;
+    public void bringToFront() {
+        if (rendererSet) {
+            bringToFront();
+        }
     }
 
     public boolean isRendererSet() {
