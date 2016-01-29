@@ -72,63 +72,64 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             return;
         }
 
-        setOnTouchListener(
-                new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        if (event != null) {
-                            // Convert touch coordinates into normalized device
-                            // coordinates, keeping in mind that Android's Y
-                            // coordinates are inverted.
-                            final float normalizedX =
-                                    (event.getX() / (float) v.getWidth()) * 2 - 1;
-                            final float normalizedY =
-                                    -((event.getY() / (float) v.getHeight()) * 2 - 1);
-
-                            //  Since  Android’s  GLSurfaceView  does  rendering  in  a  background  thread,  we  must  be
-                            //  careful to call OpenGL only within the rendering thread, and Android UI calls only
-                            //  within Android’s main thread. We can call queueEvent() on our instance of GLSurfaceView
-                            //  to post a Runnable on the background rendering thread. From within the rendering
-                            //  thread, we can call runOnUIThread() on our activity to post events on the main thread.
-
-                            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                                queueEvent(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        render.handleTouchPress(
-                                                normalizedX, normalizedY);
-                                    }
-                                });
-                            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                                queueEvent(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        render.handleTouchDrag(
-                                                normalizedX, normalizedY);
-                                    }
-                                });
-                            } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                                queueEvent(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        render.handleTouchUp(
-                                                normalizedX, normalizedY);
-                                    }
-                                });
-                            }
-
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                });
-
         render.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
             @Override
             public void onSurfaceCreated() {
                 if (null != onSurfaceCreatedCallback)
                     onSurfaceCreatedCallback.onSurfaceCreated();
+            }
+        });
+    }
+
+    public void initTouchControl() {
+        setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event != null) {
+                    // Convert touch coordinates into normalized device
+                    // coordinates, keeping in mind that Android's Y
+                    // coordinates are inverted.
+                    final float normalizedX =
+                            (event.getX() / (float) v.getWidth()) * 2 - 1;
+                    final float normalizedY =
+                            -((event.getY() / (float) v.getHeight()) * 2 - 1);
+
+                    //  Since  Android’s  GLSurfaceView  does  rendering  in  a  background  thread,  we  must  be
+                    //  careful to call OpenGL only within the rendering thread, and Android UI calls only
+                    //  within Android’s main thread. We can call queueEvent() on our instance of GLSurfaceView
+                    //  to post a Runnable on the background rendering thread. From within the rendering
+                    //  thread, we can call runOnUIThread() on our activity to post events on the main thread.
+
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        queueEvent(new Runnable() {
+                            @Override
+                            public void run() {
+                                render.handleTouchPress(
+                                        normalizedX, normalizedY);
+                            }
+                        });
+                    } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                        queueEvent(new Runnable() {
+                            @Override
+                            public void run() {
+                                render.handleTouchDrag(
+                                        normalizedX, normalizedY);
+                            }
+                        });
+                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                        queueEvent(new Runnable() {
+                            @Override
+                            public void run() {
+                                render.handleTouchUp(
+                                        normalizedX, normalizedY);
+                            }
+                        });
+                    }
+
+                    return true;
+                } else {
+                    return false;
+                }
             }
         });
     }

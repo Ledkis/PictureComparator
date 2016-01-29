@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     compile project(':pictureComparator')
+    compile "com.android.support:support-v13:23.0.0"
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "ledkis.module.picturecomparator.example"
-        minSdkVersion 11
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
