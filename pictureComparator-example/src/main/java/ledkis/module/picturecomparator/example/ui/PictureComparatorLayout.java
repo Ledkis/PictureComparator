@@ -1,4 +1,4 @@
-package ledkis.module.picturecomparator.example;
+package ledkis.module.picturecomparator.example.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;

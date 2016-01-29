@@ -7,102 +7,16 @@
     android:layout_height="match_parent"
     >
 
-    <ledkis.module.picturecomparator.example.CameraPreviewLayout
+    <ledkis.module.picturecomparator.example.ui.CameraPreviewLayout
         android:id="@+id/cameraPreviewLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"/>
 
-    <ledkis.module.picturecomparator.example.ControlSwipeViewPager
+    <ledkis.module.picturecomparator.example.ui.ControlSwipeViewPager
         android:id="@+id/mainScreenPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
-
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <Button
-            android:id="@+id/leftButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="200dp"
-            android:text="Choice 1"
-            />
-
-        <Button
-            android:id="@+id/rightButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-
-            android:layout_marginTop="200dp"
-            android:text="Choice 2"
-            />
-
-        <Button
-            android:id="@+id/upLeftButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-
-            android:text="delete1"
-            />
-
-        <Button
-            android:id="@+id/upButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-
-            android:text="swape"
-            />
-
-        <Button
-            android:id="@+id/upRightButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-
-            android:text="delete2"
-            />
-
-        <Button
-            android:id="@+id/bottomLeftButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-
-            android:text="change"
-            />
-
-        <Button
-            android:id="@+id/bottomButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerInParent="true"
-
-            android:text="add"
-            />
-
-        <Button
-            android:id="@+id/bottomRightButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-
-            android:text="visibility"
-            />
-
-    </RelativeLayout>
 
 
 </RelativeLayout>

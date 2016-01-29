@@ -1,4 +1,4 @@
-package ledkis.module.picturecomparator.example;
+package ledkis.module.picturecomparator.example.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.RelativeLayout;
+
+import ledkis.module.picturecomparator.example.R;
 
 
 public class CameraPreviewLayout extends RelativeLayout {

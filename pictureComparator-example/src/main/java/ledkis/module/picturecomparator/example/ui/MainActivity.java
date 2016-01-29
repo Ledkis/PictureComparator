@@ -1,7 +1,9 @@
-package ledkis.module.picturecomparator.example;
+package ledkis.module.picturecomparator.example.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import ledkis.module.picturecomparator.example.R;
 
 public class MainActivity extends Activity {
 
