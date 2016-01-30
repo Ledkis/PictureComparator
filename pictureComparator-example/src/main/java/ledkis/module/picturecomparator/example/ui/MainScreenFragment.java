@@ -18,6 +18,7 @@ import ledkis.module.picturecomparator.example.PictureComparatorApplication;
 import ledkis.module.picturecomparator.example.R;
 import ledkis.module.picturecomparator.example.core.AndroidBus;
 import ledkis.module.picturecomparator.example.event.PictureTakenEvent;
+import ledkis.module.picturecomparator.example.event.RequestSwitchCameraEvent;
 import ledkis.module.picturecomparator.example.event.RequestSwitchVisibilityEvent;
 import ledkis.module.picturecomparator.example.event.RequestTakePictureEvent;
 import ledkis.module.picturecomparator.example.ui.view.CameraPreviewLayout;
@@ -36,6 +37,8 @@ public class MainScreenFragment extends Fragment {
 
     private int pictureClass;
 
+    private int cameraId;
+
     public MainScreenFragment() {
     }
 
@@ -48,7 +51,7 @@ public class MainScreenFragment extends Fragment {
     public void onResume() {
         super.onResume();
         bus.register(this);
-        cameraPreviewLayout.startPreview(getActivity(), Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraPreviewLayout.startPreview(getActivity(), cameraId);
     }
 
     @Override
@@ -63,6 +66,8 @@ public class MainScreenFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PictureComparatorApplication.get(getActivity()).inject(this);
+
+        cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     }
 
 
@@ -93,7 +98,7 @@ public class MainScreenFragment extends Fragment {
             public void onPictureTaken(byte[] picturesBytes, Camera camera) {
                 Bitmap bitmap = rotateBitmap(
                         BitmapFactory.decodeByteArray(picturesBytes, 0, picturesBytes.length),
-                        Camera.CameraInfo.CAMERA_FACING_BACK);
+                        cameraId);
 
                 bus.post(new PictureTakenEvent(bitmap, pictureClass));
                 bus.post(new RequestSwitchVisibilityEvent());
@@ -103,10 +108,10 @@ public class MainScreenFragment extends Fragment {
         return rootView;
     }
 
-    public static Bitmap rotateBitmap(Bitmap bitmap, int pictureState) {
-        if (Camera.CameraInfo.CAMERA_FACING_BACK == pictureState) {
+    public Bitmap rotateBitmap(Bitmap bitmap, int cameraState) {
+        if (Camera.CameraInfo.CAMERA_FACING_BACK == cameraState) {
             return Utils.rotateBitmap(bitmap, Constants.Layout.FRONT_BITMAP_PRE_ROTATION);
-        } else if (Camera.CameraInfo.CAMERA_FACING_FRONT == pictureState) {
+        } else if (Camera.CameraInfo.CAMERA_FACING_FRONT == cameraState) {
             return Utils.rotateBitmap(bitmap, Constants.Layout.BACK_BITMAP_PRE_ROTATION);
         } else {
             return Utils.rotateBitmap(bitmap, Constants.Layout.CUSTOM_BITMAP_PRE_ROTATION);
@@ -120,7 +125,7 @@ public class MainScreenFragment extends Fragment {
             cameraPreviewLayout.setVisibility(View.GONE);
             viewPager.setPagingEnabled(false);
         } else {
-            cameraPreviewLayout.startPreview(getActivity(), Camera.CameraInfo.CAMERA_FACING_BACK);
+            cameraPreviewLayout.startPreview(getActivity(), cameraId);
             cameraPreviewLayout.setVisibility(View.VISIBLE);
             viewPager.setPagingEnabled(true);
         }
@@ -128,7 +133,7 @@ public class MainScreenFragment extends Fragment {
 
     @Subscribe
     public void onPictureTakenEvent(PictureTakenEvent event) {
-        cameraPreviewLayout.startPreview(getActivity(), Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraPreviewLayout.startPreview(getActivity(), cameraId);
         cameraPreviewLayout.setVisibility(View.VISIBLE);
     }
 
@@ -136,6 +141,12 @@ public class MainScreenFragment extends Fragment {
     public void onRequestTakePictureEvent(RequestTakePictureEvent event) {
         cameraPreviewLayout.takePicture();
         pictureClass = event.getPictureClass();
+    }
+
+    @Subscribe
+    public void onRequestSwitchCameraEvent(RequestSwitchCameraEvent event) {
+        cameraId = event.getCameraId();
+        cameraPreviewLayout.startPreview(getActivity(), cameraId);
     }
 
 

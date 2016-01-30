@@ -125,6 +125,15 @@
             android:layout_marginRight="10dp"
             android:text="TakePic2"/>
 
+        <Button
+            android:id="@+id/switchCameraButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="150dp"
+            android:text="switchCamera"/>
+
     </RelativeLayout>
 
     <Button

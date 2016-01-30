@@ -19,6 +19,7 @@ import ledkis.module.picturecomparator.example.PictureComparatorApplication;
 import ledkis.module.picturecomparator.example.R;
 import ledkis.module.picturecomparator.example.core.AndroidBus;
 import ledkis.module.picturecomparator.example.event.PictureTakenEvent;
+import ledkis.module.picturecomparator.example.event.RequestSwitchCameraEvent;
 import ledkis.module.picturecomparator.example.event.RequestSwitchVisibilityEvent;
 import ledkis.module.picturecomparator.example.event.RequestTakePictureEvent;
 import ledkis.module.picturecomparator.example.ui.view.PictureComparatorLayout;
@@ -56,6 +57,8 @@ public class PictureComparatorFragment extends Fragment {
 
     private Button takeChoice1Picture;
     private Button takeChoice2Picture;
+    private Button switchCameraButton;
+
     private Button visibilityButton;
 
 
@@ -112,6 +115,8 @@ public class PictureComparatorFragment extends Fragment {
 
         takeChoice1Picture = (Button) rootView.findViewById(R.id.takeChoice1Picture);
         takeChoice2Picture = (Button) rootView.findViewById(R.id.takeChoice2Picture);
+        switchCameraButton = (Button) rootView.findViewById(R.id.switchCameraButton);
+
         visibilityButton = (Button) rootView.findViewById(R.id.visibilityButton);
 
         glPictureChoice1 = new GlPictureChoice();
@@ -223,6 +228,14 @@ public class PictureComparatorFragment extends Fragment {
                 bus.post(new RequestTakePictureEvent(Constants.Layout.PICTURE_CLASS_2));
             }
         });
+
+        switchCameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bus.post(new RequestSwitchCameraEvent());
+            }
+        });
+
 
         visibilityButton.setOnClickListener(new View.OnClickListener() {
             @Override
