@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.RelativeLayout;
 
 import ledkis.module.picturecomparator.example.R;
@@ -65,7 +64,6 @@ public class CameraPreviewLayout extends RelativeLayout {
         if (mPreview != null) {
             mPreview.stop();
             cameraPreview.removeView(mPreview);
-            Log.d("XXX", "stopPreview");
         }
     }
 
@@ -79,10 +77,8 @@ public class CameraPreviewLayout extends RelativeLayout {
                 LayoutParams previewLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
                 cameraPreview.addView(mPreview, 0, previewLayoutParams);
 
-                Log.d("XXX", "startPreview started");
             } catch (Exception e) {
                 // TODO analytics
-                Log.d("XXX", "startPreview failed");
                 if (null != callback)
                     callback.onCameraFailed(FAILED_TO_START_THE_CAMERA);
 
