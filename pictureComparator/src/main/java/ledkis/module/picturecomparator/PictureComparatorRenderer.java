@@ -60,11 +60,36 @@ public class PictureComparatorRenderer implements Renderer {
 
         void onHandleTouchUp(float normalizedX, float normalizedY);
 
-        void onProgressChange(float progress);
     }
 
     public interface OnSurfaceCreatedCallback {
         void onSurfaceCreated();
+    }
+
+    public interface OnProgressChangeCallback {
+        void onProgressChange(float progress);
+    }
+
+    public interface OnPictureStateChangeCallback {
+        void onPictureStateChange(PictureState pictureState);
+    }
+
+    public interface OnDisplayStateChangeCallback {
+        void onDisplayStateChange(DisplayState displayState);
+    }
+
+    public enum PictureState {
+        CHOICE_1,
+        CHOICE_2,
+        CHOICE_1_AND_2,
+        NONE
+    }
+
+    public enum DisplayState {
+        CHOICE_1,
+        CHOICE_2,
+        CENTER,
+        MOVING
     }
 
     private final Context context;
@@ -100,6 +125,9 @@ public class PictureComparatorRenderer implements Renderer {
 
     private Callback callback;
     private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
+    private OnProgressChangeCallback onProgressChangeCallback;
+    private OnPictureStateChangeCallback onPictureStateChangeCallback;
+    private OnDisplayStateChangeCallback onDisplayStateChangeCallback;
 
     private GLSurfaceView glSurfaceView;
 
@@ -110,6 +138,8 @@ public class PictureComparatorRenderer implements Renderer {
     private float releaseProgress;
 
     private Interpolator interpolator;
+
+    private PictureState pictureState;
 
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
@@ -162,32 +192,57 @@ public class PictureComparatorRenderer implements Renderer {
 
     private void setCurrentProgress(float progress) {
         currentProgress = progress;
-        if (null != callback)
-            callback.onProgressChange(currentProgress);
+        if (null != onProgressChangeCallback)
+            onProgressChangeCallback.onProgressChange(currentProgress);
+    }
+
+    public void updateState() {
+
+        PictureState lastPictureState = pictureState;
+
+        boolean pic1 = isPicture1Ready();
+        boolean pic2 = isPicture2Ready();
+
+        if (pic1 && !pic2) {
+            pictureState = PictureState.CHOICE_1;
+        } else if (!pic1 && pic2) {
+            pictureState = PictureState.CHOICE_2;
+        } else if (pic1 && pic2) {
+            pictureState = PictureState.CHOICE_1_AND_2;
+        } else {
+            pictureState = PictureState.NONE;
+        }
+
+        if (lastPictureState != pictureState && null != onPictureStateChangeCallback) {
+            onPictureStateChangeCallback.onPictureStateChange(pictureState);
+        }
     }
 
     public void updateLayout() {
         setLayout(currentProgress);
     }
 
-    private void setLayout(float progress) {
+    public void setLayout(float progress) {
 
-        boolean pic1 = isPicture1Ready();
-        boolean pic2 = isPicture2Ready();
+        updateState();
 
-        if (!pic1 || !pic2) {
+        if (pictureState == PictureState.CHOICE_1 || pictureState == PictureState.CHOICE_2) {
             centerLine = null;
         } else {
             if(null == centerLine)
                 setCenterLine();
         }
 
-        if (pic1 && !pic2) {
-            progress = CHOICE_1_FINAL_PROGRESS_VALUE;
-        } else if (!pic1 && pic2) {
-            progress = CHOICE_2_FINAL_PROGRESS_VALUE;
-        } else if (!pic1 && !pic2) {
-            progress = PROGRESS_CENTER_VALUE;
+        switch (pictureState) {
+            case CHOICE_1:
+                progress = CHOICE_1_FINAL_PROGRESS_VALUE;
+                break;
+            case CHOICE_2:
+                progress = CHOICE_2_FINAL_PROGRESS_VALUE;
+                break;
+            case NONE:
+                progress = PROGRESS_CENTER_VALUE;
+                break;
         }
 
         setCurrentProgress(progress);
@@ -282,12 +337,28 @@ public class PictureComparatorRenderer implements Renderer {
         this.onSurfaceCreatedCallback = onSurfaceCreatedCallback;
     }
 
+    public void setOnProgressChangeCallback(OnProgressChangeCallback onProgressChangeCallback) {
+        this.onProgressChangeCallback = onProgressChangeCallback;
+    }
+
+    public void setOnPictureStateChangeCallback(OnPictureStateChangeCallback onPictureStateChangeCallback) {
+        this.onPictureStateChangeCallback = onPictureStateChangeCallback;
+    }
+
+    public void setOnDisplayStateChangeCallback(OnDisplayStateChangeCallback onDisplayStateChangeCallback) {
+        this.onDisplayStateChangeCallback = onDisplayStateChangeCallback;
+    }
+
     public void setGlPictureChoice1(GlPictureChoice glPictureChoice1) {
         this.glPictureChoice1 = glPictureChoice1;
     }
 
     public void setGlPictureChoice2(GlPictureChoice glPictureChoice2) {
         this.glPictureChoice2 = glPictureChoice2;
+    }
+
+    public float getCurrentProgress() {
+        return currentProgress;
     }
 
     public void swapeTextures(){
@@ -402,6 +473,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         if (t > FADE_TIME) {
             onAnimation = false;
+        } else {
+
         }
     }
 
@@ -415,10 +488,14 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     private void releaseAnimation(float progress) {
-        onAnimation = true;
-        animationStartTime = System.currentTimeMillis();
-        releaseProgress = currentProgress;
         finalValue = Utils.getFinalThresholdValue(progress, CHOICE_THRESHOLD);
+        if (CHOICE_1_FINAL_PROGRESS_VALUE == finalValue) {
+            openChoice1Animation();
+        } else if (CHOICE_2_FINAL_PROGRESS_VALUE == finalValue) {
+            openChoice2Animation();
+        } else {
+            closeAnimation();
+        }
     }
 
     public void openChoice1Animation() {
@@ -426,6 +503,9 @@ public class PictureComparatorRenderer implements Renderer {
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = CHOICE_1_FINAL_PROGRESS_VALUE;
+        if (null != onDisplayStateChangeCallback) {
+            onDisplayStateChangeCallback.onDisplayStateChange(DisplayState.CHOICE_1);
+        }
     }
 
     public void openChoice2Animation() {
@@ -433,6 +513,9 @@ public class PictureComparatorRenderer implements Renderer {
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = CHOICE_2_FINAL_PROGRESS_VALUE;
+        if (null != onDisplayStateChangeCallback) {
+            onDisplayStateChangeCallback.onDisplayStateChange(DisplayState.CHOICE_2);
+        }
     }
 
     public void closeAnimation() {
@@ -440,6 +523,9 @@ public class PictureComparatorRenderer implements Renderer {
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = PROGRESS_CENTER_VALUE;
+        if (null != onDisplayStateChangeCallback) {
+            onDisplayStateChangeCallback.onDisplayStateChange(DisplayState.CENTER);
+        }
     }
 
     private void updatePicturesInitialization() {

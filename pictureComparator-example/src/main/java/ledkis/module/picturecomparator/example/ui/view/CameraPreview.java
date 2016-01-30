@@ -50,7 +50,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     /**
-     * State flag: true when surface's layout size is set and surfaceChanged()
+     * PictureState flag: true when surface's layout size is set and surfaceChanged()
      * process has not been completed.
      */
     protected boolean mSurfaceConfiguring = false;

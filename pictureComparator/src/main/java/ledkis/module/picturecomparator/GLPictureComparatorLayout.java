@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import ledkis.module.picturecomparator.util.Utils;
 
+import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
+
 public class GLPictureComparatorLayout extends GLSurfaceView {
 
     public static final String TAG = "GLPictureComparatorLayout";
@@ -138,6 +140,28 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         this.onSurfaceCreatedCallback = onSurfaceCreatedCallback;
     }
 
+    public void setOnProgressChangeCallback(PictureComparatorRenderer.OnProgressChangeCallback onProgressChangeCallback) {
+        if (null != render)
+            render.setOnProgressChangeCallback(onProgressChangeCallback);
+    }
+
+    public void setOnPictureStateChangeCallback(PictureComparatorRenderer.OnPictureStateChangeCallback onPictureStateChangeCallback) {
+        if (null != render)
+            render.setOnPictureStateChangeCallback(onPictureStateChangeCallback);
+    }
+
+    public void setOnDisplayStateChangeCallback(PictureComparatorRenderer.OnDisplayStateChangeCallback onDisplayStateChangeCallback) {
+        if (null != render)
+            render.setOnDisplayStateChangeCallback(onDisplayStateChangeCallback);
+    }
+
+    public float getCurrentProgress() {
+        if (null != render)
+            return render.getCurrentProgress();
+        else
+            return PROGRESS_CENTER_VALUE;
+    }
+
     public boolean supportsEs2() {
         // Check if the system supports OpenGL ES 2.0.
         ActivityManager activityManager =
@@ -198,6 +222,10 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
 
     public void updateLayout() {
         render.updateLayout();
+    }
+
+    public void setLayout(float progress) {
+        render.setLayout(progress);
     }
 
     public void setGlPictureChoices(GlPictureChoice glPictureChoice1, GlPictureChoice glPictureChoice2) {
