@@ -203,6 +203,12 @@ public class PictureComparatorFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 bottomButtonFlag = !bottomButtonFlag;
+
+                if (bottomButtonFlag) {
+                    pictureComparatorLayout.setOnTouchListener(null);
+                } else {
+                    pictureComparatorLayout.initTouchControl();
+                }
             }
         });
 
