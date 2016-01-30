@@ -2,6 +2,7 @@ package ledkis.module.picturecomparator.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.util.Log;
 
 import ledkis.module.picturecomparator.Constants;
@@ -110,6 +111,12 @@ public class Utils {
             Log.w(Constants.LoggerConfig.TAG, TAG + ": " + msg);
         }
 
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
 }

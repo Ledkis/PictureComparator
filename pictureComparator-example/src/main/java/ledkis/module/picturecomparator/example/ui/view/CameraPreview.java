@@ -1,4 +1,4 @@
-package ledkis.module.picturecomparator.example.ui;
+package ledkis.module.picturecomparator.example.ui.view;
 
 import android.app.Activity;
 import android.content.res.Configuration;

@@ -1,6 +1,8 @@
 package ledkis.module.picturecomparator.example.ui;
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,10 +13,15 @@ import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
+import ledkis.module.picturecomparator.Constants;
 import ledkis.module.picturecomparator.example.PictureComparatorApplication;
 import ledkis.module.picturecomparator.example.R;
 import ledkis.module.picturecomparator.example.core.AndroidBus;
+import ledkis.module.picturecomparator.example.event.PictureTakenEvent;
 import ledkis.module.picturecomparator.example.event.RequestSwitchVisibilityEvent;
+import ledkis.module.picturecomparator.example.event.RequestTakePictureEvent;
+import ledkis.module.picturecomparator.example.ui.view.CameraPreviewLayout;
+import ledkis.module.picturecomparator.util.Utils;
 
 public class MainScreenFragment extends Fragment {
 
@@ -26,6 +33,8 @@ public class MainScreenFragment extends Fragment {
     private ControlSwipeViewPager viewPager;
 
     private CameraPreviewLayout cameraPreviewLayout;
+
+    private int pictureClass;
 
     public MainScreenFragment() {
     }
@@ -63,10 +72,9 @@ public class MainScreenFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
-        pagerAdapter = new MainPagerAdapter(getActivity(), getFragmentManager());
-
         viewPager = (ControlSwipeViewPager) rootView.findViewById(R.id.mainScreenPager);
 
+        pagerAdapter = new MainPagerAdapter(getActivity(), getFragmentManager());
         viewPager.setAdapter(pagerAdapter);
         viewPager.setCurrentItem(MainPagerAdapter.PICTURE_COMPARATOR_POSITION);
         viewPager.setPagingEnabled(true);
@@ -83,21 +91,53 @@ public class MainScreenFragment extends Fragment {
 
             @Override
             public void onPictureTaken(byte[] picturesBytes, Camera camera) {
+                Bitmap bitmap = rotateBitmap(
+                        BitmapFactory.decodeByteArray(picturesBytes, 0, picturesBytes.length),
+                        Camera.CameraInfo.CAMERA_FACING_BACK);
+
+                bus.post(new PictureTakenEvent(bitmap, pictureClass));
+                bus.post(new RequestSwitchVisibilityEvent());
             }
         });
 
         return rootView;
     }
 
+    public static Bitmap rotateBitmap(Bitmap bitmap, int pictureState) {
+        if (Camera.CameraInfo.CAMERA_FACING_BACK == pictureState) {
+            return Utils.rotateBitmap(bitmap, Constants.Layout.FRONT_BITMAP_PRE_ROTATION);
+        } else if (Camera.CameraInfo.CAMERA_FACING_FRONT == pictureState) {
+            return Utils.rotateBitmap(bitmap, Constants.Layout.BACK_BITMAP_PRE_ROTATION);
+        } else {
+            return Utils.rotateBitmap(bitmap, Constants.Layout.CUSTOM_BITMAP_PRE_ROTATION);
+        }
+    }
+
     @Subscribe
     public void onRequestSwitchVisibilityEvent(RequestSwitchVisibilityEvent event) {
-        if (event.isVisibility()) {
+        if (event.getVisibilityFlag()) {
             cameraPreviewLayout.stopPreview();
             cameraPreviewLayout.setVisibility(View.GONE);
+            viewPager.setPagingEnabled(false);
         } else {
             cameraPreviewLayout.startPreview(getActivity(), Camera.CameraInfo.CAMERA_FACING_BACK);
             cameraPreviewLayout.setVisibility(View.VISIBLE);
+            viewPager.setPagingEnabled(true);
         }
     }
+
+    @Subscribe
+    public void onPictureTakenEvent(PictureTakenEvent event) {
+        cameraPreviewLayout.startPreview(getActivity(), Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraPreviewLayout.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe
+    public void onRequestTakePictureEvent(RequestTakePictureEvent event) {
+        cameraPreviewLayout.takePicture();
+        pictureClass = event.getPictureClass();
+    }
+
+
 
 }

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     >
 
-    <ledkis.module.picturecomparator.example.ui.PictureComparatorLayout
+    <ledkis.module.picturecomparator.example.ui.view.PictureComparatorLayout
 
         android:id="@+id/gl_picture_comparator_layout"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
 
 
     <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pictureComparatorControlLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
@@ -95,9 +95,44 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
 
-            android:text="visibility"
+            android:text="visibilityFlag"
             />
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/cameraControlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <Button
+            android:id="@+id/takeChoice1Picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
+            android:layout_marginLeft="10dp"
+            android:text="TakePic1"/>
+
+        <Button
+            android:id="@+id/takeChoice2Picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="100dp"
+            android:layout_marginRight="10dp"
+            android:text="TakePic2"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/visibilityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="100dp"
+        android:text="changeVisibility"/>
 </RelativeLayout>

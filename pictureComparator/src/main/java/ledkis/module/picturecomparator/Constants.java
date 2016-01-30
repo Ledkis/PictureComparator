@@ -53,6 +53,13 @@ public class Constants {
         public static final int PICTURE_CLASS_1 = 1;
         public static final int PICTURE_CLASS_2 = 2;
 
+        // Bitmap rotation
+
+        public static final int FRONT_BITMAP_PRE_ROTATION = 90;
+        public static final int BACK_BITMAP_PRE_ROTATION = 270;
+        public static final int CUSTOM_BITMAP_PRE_ROTATION = 0;
+
+
     }
 
     public class LoggerConfig {

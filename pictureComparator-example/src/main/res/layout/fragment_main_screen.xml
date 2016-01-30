@@ -7,11 +7,12 @@
     android:layout_height="match_parent"
     >
 
-    <ledkis.module.picturecomparator.example.ui.CameraPreviewLayout
+    <ledkis.module.picturecomparator.example.ui.view.CameraPreviewLayout
         android:id="@+id/cameraPreviewLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"/>
+
 
     <ledkis.module.picturecomparator.example.ui.ControlSwipeViewPager
         android:id="@+id/mainScreenPager"

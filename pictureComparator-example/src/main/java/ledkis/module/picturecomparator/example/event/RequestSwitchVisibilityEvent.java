@@ -2,13 +2,13 @@ package ledkis.module.picturecomparator.example.event;
 
 public class RequestSwitchVisibilityEvent {
 
-    private boolean visibility;
+    private static boolean visibilityFlag;
 
-    public RequestSwitchVisibilityEvent(boolean visibility) {
-        this.visibility = visibility;
+    public RequestSwitchVisibilityEvent() {
+        visibilityFlag = !visibilityFlag;
     }
 
-    public boolean isVisibility() {
-        return visibility;
+    public boolean getVisibilityFlag() {
+        return visibilityFlag;
     }
 }

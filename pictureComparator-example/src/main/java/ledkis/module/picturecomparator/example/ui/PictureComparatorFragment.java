@@ -6,17 +6,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
+import ledkis.module.picturecomparator.Constants;
 import ledkis.module.picturecomparator.GlPictureChoice;
 import ledkis.module.picturecomparator.PictureComparatorRenderer;
 import ledkis.module.picturecomparator.example.PictureComparatorApplication;
 import ledkis.module.picturecomparator.example.R;
 import ledkis.module.picturecomparator.example.core.AndroidBus;
+import ledkis.module.picturecomparator.example.event.PictureTakenEvent;
 import ledkis.module.picturecomparator.example.event.RequestSwitchVisibilityEvent;
+import ledkis.module.picturecomparator.example.event.RequestTakePictureEvent;
+import ledkis.module.picturecomparator.example.ui.view.PictureComparatorLayout;
 import ledkis.module.picturecomparator.util.TextureChange;
 import ledkis.module.picturecomparator.util.Utils;
 
@@ -31,6 +36,8 @@ public class PictureComparatorFragment extends Fragment {
 
     private PictureComparatorLayout pictureComparatorLayout;
 
+    private RelativeLayout pictureComparatorControlLayout;
+    private RelativeLayout cameraControlLayout;
 
     private Button leftButton;
     private Button rightButton;
@@ -46,6 +53,11 @@ public class PictureComparatorFragment extends Fragment {
     private boolean bottomLeftButtonFlag;
     private boolean bottomButtonFlag;
     private boolean bottomRightButtonFlag;
+
+    private Button takeChoice1Picture;
+    private Button takeChoice2Picture;
+    private Button visibilityButton;
+
 
     public PictureComparatorFragment() {
     }
@@ -84,6 +96,9 @@ public class PictureComparatorFragment extends Fragment {
 
         pictureComparatorLayout = (PictureComparatorLayout) rootView.findViewById(R.id.gl_picture_comparator_layout);
 
+        pictureComparatorControlLayout = (RelativeLayout) rootView.findViewById(R.id.pictureComparatorControlLayout);
+        cameraControlLayout = (RelativeLayout) rootView.findViewById(R.id.cameraControlLayout);
+
         leftButton = (Button) rootView.findViewById(R.id.leftButton);
         rightButton = (Button) rootView.findViewById(R.id.rightButton);
 
@@ -94,6 +109,10 @@ public class PictureComparatorFragment extends Fragment {
         bottomLeftButton = (Button) rootView.findViewById(R.id.bottomLeftButton);
         bottomButton = (Button) rootView.findViewById(R.id.bottomButton);
         bottomRightButton = (Button) rootView.findViewById(R.id.bottomRightButton);
+
+        takeChoice1Picture = (Button) rootView.findViewById(R.id.takeChoice1Picture);
+        takeChoice2Picture = (Button) rootView.findViewById(R.id.takeChoice2Picture);
+        visibilityButton = (Button) rootView.findViewById(R.id.visibilityButton);
 
         glPictureChoice1 = new GlPictureChoice();
         glPictureChoice2 = new GlPictureChoice();
@@ -178,31 +197,75 @@ public class PictureComparatorFragment extends Fragment {
         bottomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bottomButtonFlag)
-                    pictureComparatorLayout.setOnTouchListener(null);
-                else
-                    pictureComparatorLayout.initTouchControl();
+                bottomButtonFlag = !bottomButtonFlag;
             }
         });
 
         bottomRightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bus.post(new RequestSwitchVisibilityEvent(bottomRightButtonFlag));
-                bottomRightButtonFlag = !bottomRightButtonFlag;
+//                bus.post(new RequestSwitchVisibilityEvent(bottomRightButtonFlag));
+//                bottomRightButtonFlag = !bottomRightButtonFlag;
 
             }
         });
+
+        takeChoice1Picture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bus.post(new RequestTakePictureEvent(Constants.Layout.PICTURE_CLASS_1));
+            }
+        });
+
+        takeChoice2Picture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bus.post(new RequestTakePictureEvent(Constants.Layout.PICTURE_CLASS_2));
+            }
+        });
+
+        visibilityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bus.post(new RequestSwitchVisibilityEvent());
+            }
+        });
+
+        unDisplay();
 
         return rootView;
 
     }
 
+    private void display() {
+        pictureComparatorLayout.setVisibility(View.VISIBLE);
+        pictureComparatorControlLayout.setVisibility(View.VISIBLE);
+        pictureComparatorLayout.initTouchControl();
+        cameraControlLayout.setVisibility(View.GONE);
+    }
+
+    private void unDisplay() {
+        pictureComparatorLayout.setVisibility(View.GONE);
+        pictureComparatorControlLayout.setVisibility(View.GONE);
+        pictureComparatorLayout.setOnTouchListener(null);
+        cameraControlLayout.setVisibility(View.VISIBLE);
+    }
+
     @Subscribe
     public void onRequestSwitchVisibilityEvent(RequestSwitchVisibilityEvent event) {
-        if (event.isVisibility())
-            pictureComparatorLayout.setVisibility(View.VISIBLE);
-        else
-            pictureComparatorLayout.setVisibility(View.GONE);
+        if (event.getVisibilityFlag()) {
+            display();
+        } else {
+            unDisplay();
+        }
+    }
+
+    @Subscribe
+    public void onPictureTakenEvent(PictureTakenEvent event) {
+        if (Constants.Layout.PICTURE_CLASS_1 == event.getPictureClass()) {
+            glPictureChoice1.setTextureChange(new TextureChange(event.getBitmap()));
+        } else {
+            glPictureChoice2.setTextureChange(new TextureChange(event.getBitmap()));
+        }
     }
 }
