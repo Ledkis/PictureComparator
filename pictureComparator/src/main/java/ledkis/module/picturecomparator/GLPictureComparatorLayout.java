@@ -237,4 +237,8 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         return render.getDisplayState();
     }
 
+    public PictureComparatorRenderer.PicturesState getPicturesState() {
+        return render.getPicturesState();
+    }
+
 }

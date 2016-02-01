@@ -375,6 +375,10 @@ public class PictureComparatorRenderer implements Renderer {
         return currentProgress;
     }
 
+    public PicturesState getPicturesState() {
+        return picturesState;
+    }
+
     public DisplayState getDisplayState() {
         return displayState;
     }
