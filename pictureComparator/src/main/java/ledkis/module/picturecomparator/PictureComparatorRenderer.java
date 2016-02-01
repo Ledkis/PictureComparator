@@ -89,7 +89,6 @@ public class PictureComparatorRenderer implements Renderer {
         CHOICE_1,
         CHOICE_2,
         CENTER,
-        MOVING
     }
 
     private final Context context;
