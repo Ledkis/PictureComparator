@@ -233,4 +233,8 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         render.setGlPictureChoice2(glPictureChoice2);
     }
 
+    public PictureComparatorRenderer.DisplayState getDisplayState() {
+        return render.getDisplayState();
+    }
+
 }

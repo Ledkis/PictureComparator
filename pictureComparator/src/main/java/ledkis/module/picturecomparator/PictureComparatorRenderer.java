@@ -142,6 +142,8 @@ public class PictureComparatorRenderer implements Renderer {
     private PicturesState lastPicturesState;
     private PicturesState picturesState;
 
+    private DisplayState displayState;
+
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
@@ -150,6 +152,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
         centerLineColor = Color.WHITE;
+
+        displayState = DisplayState.CENTER;
 
 //        layoutRatio = 1.7777778f;
 
@@ -371,6 +375,10 @@ public class PictureComparatorRenderer implements Renderer {
         return currentProgress;
     }
 
+    public DisplayState getDisplayState() {
+        return displayState;
+    }
+
     public void swapeTextures(){
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
@@ -511,6 +519,7 @@ public class PictureComparatorRenderer implements Renderer {
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = CHOICE_1_FINAL_PROGRESS_VALUE;
+        displayState = DisplayState.CHOICE_1;
         if (null != onDisplayStateChangeCallback) {
             onDisplayStateChangeCallback.onDisplayStateChange(DisplayState.CHOICE_1);
         }
@@ -521,6 +530,7 @@ public class PictureComparatorRenderer implements Renderer {
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = CHOICE_2_FINAL_PROGRESS_VALUE;
+        displayState = DisplayState.CHOICE_2;
         if (null != onDisplayStateChangeCallback) {
             onDisplayStateChangeCallback.onDisplayStateChange(DisplayState.CHOICE_2);
         }
@@ -531,6 +541,7 @@ public class PictureComparatorRenderer implements Renderer {
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = PROGRESS_CENTER_VALUE;
+        displayState = DisplayState.CENTER;
         if (null != onDisplayStateChangeCallback) {
             onDisplayStateChangeCallback.onDisplayStateChange(DisplayState.CENTER);
         }
