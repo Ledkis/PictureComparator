@@ -124,6 +124,13 @@ public class PictureComparatorFragment extends Fragment {
 
         pictureComparatorLayout.setGlPictureChoices(glPictureChoice1, glPictureChoice2);
 
+        pictureComparatorLayout.setOnDisplayStateChangeCallback(new PictureComparatorRenderer.OnDisplayStateChangeCallback() {
+            @Override
+            public void onDisplayStateChange(PictureComparatorRenderer.DisplayState displayState) {
+                Utils.v(TAG, "onDisplayStateChange: " + displayState);
+            }
+        });
+
         pictureComparatorLayout.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
             @Override
             public void onSurfaceCreated() {
