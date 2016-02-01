@@ -145,9 +145,9 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setOnProgressChangeCallback(onProgressChangeCallback);
     }
 
-    public void setOnPictureStateChangeCallback(PictureComparatorRenderer.OnPictureStateChangeCallback onPictureStateChangeCallback) {
+    public void setOnPictureStateChangeCallback(PictureComparatorRenderer.OnPicturesStateChangeCallback onPicturesStateChangeCallback) {
         if (null != render)
-            render.setOnPictureStateChangeCallback(onPictureStateChangeCallback);
+            render.setOnPicturesStateChangeCallback(onPicturesStateChangeCallback);
     }
 
     public void setOnDisplayStateChangeCallback(PictureComparatorRenderer.OnDisplayStateChangeCallback onDisplayStateChangeCallback) {

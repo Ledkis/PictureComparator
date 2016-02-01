@@ -204,12 +204,12 @@ public class GlTexture {
         Utils.w(TAG, "Bitmap texture bind: " + width + "x" + height);
     }
 
-    public boolean updateBitmap(TextureChange textureChange) {
+    public boolean updateBitmap(Context context, TextureChange textureChange) {
         if (null == textureChange)
             return false;
 
         if (textureChange.getResourceId() != 0) {
-            bindTexture(textureChange.getContext(), textureChange.getResourceId());
+            bindTexture(context, textureChange.getResourceId());
         } else if (textureChange.getPicturesBytes() != null) {
             bindTexture(textureChange.getPicturesBytes());
         } else if (textureChange.getBitmap() != null) {
@@ -217,7 +217,7 @@ public class GlTexture {
         } else if (textureChange.getFilePath() != null) {
             bindTexture(textureChange.getFilePath(), textureChange.getReqWidth(), textureChange.getReqHeight());
         } else if (textureChange.getImageAssetName() != null) {
-            bindTexture(textureChange.getContext(), textureChange.getImageAssetName());
+            bindTexture(context, textureChange.getImageAssetName());
         }
 
         return true;

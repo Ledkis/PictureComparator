@@ -1,5 +1,6 @@
 package ledkis.module.picturecomparator;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import ledkis.module.picturecomparator.objects.TextureRect2DFrameObject;
@@ -55,8 +56,8 @@ public class GlPictureChoice {
         }
     }
 
-    public boolean updateBitmap(float layoutRatio) {
-        boolean changed = glTexture.updateBitmap(textureChange);
+    public boolean updateBitmap(Context context, float layoutRatio) {
+        boolean changed = glTexture.updateBitmap(context, textureChange);
 
         if (changed) {
             onTextureLoaded(layoutRatio);

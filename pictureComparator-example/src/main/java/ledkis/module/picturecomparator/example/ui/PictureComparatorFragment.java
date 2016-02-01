@@ -127,8 +127,8 @@ public class PictureComparatorFragment extends Fragment {
         pictureComparatorLayout.setOnSurfaceCreatedCallback(new PictureComparatorRenderer.OnSurfaceCreatedCallback() {
             @Override
             public void onSurfaceCreated() {
-                glPictureChoice1.setTextureChange(new TextureChange(getActivity(), R.drawable.choice1));
-                glPictureChoice2.setTextureChange(new TextureChange(getActivity(), R.drawable.choice2));
+                glPictureChoice1.setTextureChange(new TextureChange(R.drawable.choice1));
+                glPictureChoice2.setTextureChange(new TextureChange(R.drawable.choice2));
 
             }
         });
@@ -187,12 +187,12 @@ public class PictureComparatorFragment extends Fragment {
             public void onClick(View v) {
                 if (bottomLeftButtonFlag) {
                     Utils.v(TAG, "drawable change");
-                    glPictureChoice1.setTextureChange(new TextureChange(getActivity(), R.drawable.choice1));
-                    glPictureChoice2.setTextureChange(new TextureChange(getActivity(), R.drawable.choice2));
+                    glPictureChoice1.setTextureChange(new TextureChange(R.drawable.choice1));
+                    glPictureChoice2.setTextureChange(new TextureChange(R.drawable.choice2));
                 } else {
                     Utils.v(TAG, "assets change");
-                    glPictureChoice1.setTextureChange(new TextureChange(getActivity(), "choice1-2.png"));
-                    glPictureChoice2.setTextureChange(new TextureChange(getActivity(), "choice2-2.png"));
+                    glPictureChoice1.setTextureChange(new TextureChange("choice1-2.png"));
+                    glPictureChoice2.setTextureChange(new TextureChange("choice2-2.png"));
                 }
 
                 bottomLeftButtonFlag = !bottomLeftButtonFlag;

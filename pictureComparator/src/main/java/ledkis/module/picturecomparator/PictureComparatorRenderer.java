@@ -70,15 +70,15 @@ public class PictureComparatorRenderer implements Renderer {
         void onProgressChange(float progress);
     }
 
-    public interface OnPictureStateChangeCallback {
-        void onPictureStateChange(PictureState pictureState);
+    public interface OnPicturesStateChangeCallback {
+        void onPicturesStateChange(PicturesState picturesState);
     }
 
     public interface OnDisplayStateChangeCallback {
         void onDisplayStateChange(DisplayState displayState);
     }
 
-    public enum PictureState {
+    public enum PicturesState {
         CHOICE_1,
         CHOICE_2,
         CHOICE_1_AND_2,
@@ -126,7 +126,7 @@ public class PictureComparatorRenderer implements Renderer {
     private Callback callback;
     private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
     private OnProgressChangeCallback onProgressChangeCallback;
-    private OnPictureStateChangeCallback onPictureStateChangeCallback;
+    private OnPicturesStateChangeCallback onPicturesStateChangeCallback;
     private OnDisplayStateChangeCallback onDisplayStateChangeCallback;
 
     private GLSurfaceView glSurfaceView;
@@ -139,7 +139,8 @@ public class PictureComparatorRenderer implements Renderer {
 
     private Interpolator interpolator;
 
-    private PictureState pictureState;
+    private PicturesState lastPicturesState;
+    private PicturesState picturesState;
 
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
@@ -198,23 +199,26 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void updateState() {
 
-        PictureState lastPictureState = pictureState;
+        lastPicturesState = picturesState;
 
         boolean pic1 = isPicture1Ready();
         boolean pic2 = isPicture2Ready();
 
         if (pic1 && !pic2) {
-            pictureState = PictureState.CHOICE_1;
+            picturesState = PicturesState.CHOICE_1;
         } else if (!pic1 && pic2) {
-            pictureState = PictureState.CHOICE_2;
+            picturesState = PicturesState.CHOICE_2;
         } else if (pic1 && pic2) {
-            pictureState = PictureState.CHOICE_1_AND_2;
+            picturesState = PicturesState.CHOICE_1_AND_2;
         } else {
-            pictureState = PictureState.NONE;
+            picturesState = PicturesState.NONE;
         }
 
-        if (lastPictureState != pictureState && null != onPictureStateChangeCallback) {
-            onPictureStateChangeCallback.onPictureStateChange(pictureState);
+        if (lastPicturesState != picturesState) {
+            if (null != onPicturesStateChangeCallback) {
+                onPicturesStateChangeCallback.onPicturesStateChange(picturesState);
+            }
+            Utils.v(TAG, "onPicturesStateChange:" + picturesState);
         }
     }
 
@@ -226,14 +230,14 @@ public class PictureComparatorRenderer implements Renderer {
 
         updateState();
 
-        if (pictureState == PictureState.CHOICE_1 || pictureState == PictureState.CHOICE_2) {
-            centerLine = null;
-        } else {
-            if(null == centerLine)
+        if (picturesState == PicturesState.CHOICE_1_AND_2) {
+            if (null == centerLine)
                 setCenterLine();
+        } else {
+            centerLine = null;
         }
 
-        switch (pictureState) {
+        switch (picturesState) {
             case CHOICE_1:
                 progress = CHOICE_1_FINAL_PROGRESS_VALUE;
                 break;
@@ -244,6 +248,12 @@ public class PictureComparatorRenderer implements Renderer {
                 progress = PROGRESS_CENTER_VALUE;
                 break;
         }
+
+        boolean from1to2Pictures = (PicturesState.CHOICE_1 == lastPicturesState || PicturesState.CHOICE_2 == lastPicturesState)
+                && (PicturesState.CHOICE_1_AND_2 == picturesState);
+
+        if (from1to2Pictures)
+            progress = PROGRESS_CENTER_VALUE;
 
         setCurrentProgress(progress);
 
@@ -341,8 +351,8 @@ public class PictureComparatorRenderer implements Renderer {
         this.onProgressChangeCallback = onProgressChangeCallback;
     }
 
-    public void setOnPictureStateChangeCallback(OnPictureStateChangeCallback onPictureStateChangeCallback) {
-        this.onPictureStateChangeCallback = onPictureStateChangeCallback;
+    public void setOnPicturesStateChangeCallback(OnPicturesStateChangeCallback onPicturesStateChangeCallback) {
+        this.onPicturesStateChangeCallback = onPicturesStateChangeCallback;
     }
 
     public void setOnDisplayStateChangeCallback(OnDisplayStateChangeCallback onDisplayStateChangeCallback) {
@@ -473,15 +483,13 @@ public class PictureComparatorRenderer implements Renderer {
 
         if (t > FADE_TIME) {
             onAnimation = false;
-        } else {
-
         }
     }
 
     private void updateTextures() {
 
-        boolean texture1Changed = null != glPictureChoice1 && glPictureChoice1.updateBitmap(layoutRatio);
-        boolean texture2Changed = null != glPictureChoice2 && glPictureChoice2.updateBitmap(layoutRatio);
+        boolean texture1Changed = null != glPictureChoice1 && glPictureChoice1.updateBitmap(context, layoutRatio);
+        boolean texture2Changed = null != glPictureChoice2 && glPictureChoice2.updateBitmap(context, layoutRatio);
 
         if (texture1Changed || texture2Changed)
             updateLayout();

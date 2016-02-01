@@ -1,11 +1,9 @@
 package ledkis.module.picturecomparator.util;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 
 public class TextureChange {
     private int resourceId;
-    private Context context;
     private byte[] picturesBytes;
     private String filePath;
     private int reqWidth;
@@ -23,13 +21,11 @@ public class TextureChange {
         this.reqWidth = reqWidth;
     }
 
-    public TextureChange(Context context, String imageAssetName) {
-        this.context = context;
+    public TextureChange(String imageAssetName) {
         this.imageAssetName = imageAssetName;
     }
 
-    public TextureChange(Context context, int resourceId) {
-        this.context = context;
+    public TextureChange(int resourceId) {
         this.resourceId = resourceId;
     }
 
@@ -55,10 +51,6 @@ public class TextureChange {
 
     public String getImageAssetName() {
         return imageAssetName;
-    }
-
-    public Context getContext() {
-        return context;
     }
 
     public int getReqHeight() {
