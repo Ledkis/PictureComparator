@@ -17,9 +17,15 @@ import ledkis.module.picturecomparator.util.CubicBezierInterpolator;
 import ledkis.module.picturecomparator.util.TextureChange;
 import ledkis.module.picturecomparator.util.Utils;
 
+import static android.opengl.GLES20.GL_BLEND;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
+import static android.opengl.GLES20.GL_SRC_ALPHA;
+import static android.opengl.GLES20.glBlendFunc;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glDisable;
+import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glViewport;
 import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.orthoM;
@@ -472,14 +478,19 @@ public class PictureComparatorRenderer implements Renderer {
 
         // CenterLine
         if (null != centerLine && null != colorShaderProgram) {
+            // http://stackoverflow.com/questions/11174991/android-opengl-es-1-0-alpha
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             positionAndScaleObject2DInScene(centerX, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
             colorShaderProgram.setUniforms(modelProjectionMatrix,
                     (float) Color.red(centerLineColor) / 255,
                     (float) Color.green(centerLineColor) / 255,
-                    (float) Color.blue(centerLineColor) / 255);
+                    (float) Color.blue(centerLineColor) / 255,
+                    1f);
             centerLine.bindData(colorShaderProgram);
             centerLine.draw();
+            glDisable(GL_BLEND);
         }
     }
 
