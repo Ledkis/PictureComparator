@@ -162,6 +162,32 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             return PROGRESS_CENTER_VALUE;
     }
 
+    public void setCenterLineColor(int centerLineColor) {
+        if (null != render)
+            render.setCenterLineColor(centerLineColor);
+    }
+
+    public void setCenterLineAlpha(float centerLineAlpha) {
+        if (null != render)
+            render.setCenterLineAlpha(centerLineAlpha);
+    }
+
+
+    public void setChoiceMaskColor(int choiceMaskColor) {
+        if (null != render)
+            render.setChoiceMaskColor(choiceMaskColor);
+    }
+
+    public void setChoiceMaskAlpha(float choiceMaskAlpha) {
+        if (null != render)
+            render.setChoiceMaskAlpha(choiceMaskAlpha);
+    }
+
+    public void setDisplayChoiceMaskFrame(boolean displayChoiceMaskFrame) {
+        if (null != render)
+            render.setDisplayChoiceMaskFrame(displayChoiceMaskFrame);
+    }
+
     public boolean supportsEs2() {
         // Check if the system supports OpenGL ES 2.0.
         ActivityManager activityManager =

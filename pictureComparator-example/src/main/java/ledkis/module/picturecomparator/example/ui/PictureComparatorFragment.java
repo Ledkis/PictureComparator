@@ -1,6 +1,7 @@
 package ledkis.module.picturecomparator.example.ui;
 
 import android.app.Fragment;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -136,6 +137,26 @@ public class PictureComparatorFragment extends Fragment {
             public void onSurfaceCreated() {
                 glPictureChoice1.setTextureChange(new TextureChange(R.drawable.choice1));
                 glPictureChoice2.setTextureChange(new TextureChange(R.drawable.choice2));
+
+            }
+        });
+
+        pictureComparatorLayout.setDisplayChoiceMaskFrame(true);
+        pictureComparatorLayout.setChoiceMaskColor(Color.RED);
+
+        pictureComparatorLayout.setOnProgressChangeCallback(new PictureComparatorRenderer.OnProgressChangeCallback() {
+            @Override
+            public void onProgressChange(float progress) {
+
+                float alpha = Utils.map(Math.abs(progress), 0f, 1f, 0f, 0.7f);
+
+                if (Constants.Layout.ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
+                    pictureComparatorLayout.setChoiceMaskColor(Color.RED);
+                } else {
+                    pictureComparatorLayout.setChoiceMaskColor(Color.GREEN);
+                }
+
+                pictureComparatorLayout.setChoiceMaskAlpha(alpha);
 
             }
         });

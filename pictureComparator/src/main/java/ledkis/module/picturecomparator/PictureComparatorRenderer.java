@@ -103,6 +103,7 @@ public class PictureComparatorRenderer implements Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] modelProjectionMatrix = new float[16];
 
+    private Rect2DFrame choiceMaskFrame;
     private Rect2DFrame centerLine;
 
     private GlPictureChoice glPictureChoice1;
@@ -127,6 +128,11 @@ public class PictureComparatorRenderer implements Renderer {
     private float centerX;
 
     private int centerLineColor;
+    private float centerLineAlpha;
+
+    private boolean displayChoiceMaskFrame;
+    private int choiceMaskColor;
+    private float choiceMaskAlpha;
 
     private Callback callback;
     private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
@@ -156,7 +162,13 @@ public class PictureComparatorRenderer implements Renderer {
         this.animate = true;
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
+
         centerLineColor = Color.WHITE;
+        centerLineAlpha = 1f;
+
+        displayChoiceMaskFrame = false;
+        choiceMaskColor = Color.WHITE;
+        choiceMaskAlpha = 0f;
 
         displayState = DisplayState.CENTER;
 
@@ -388,6 +400,26 @@ public class PictureComparatorRenderer implements Renderer {
         return displayState;
     }
 
+    public void setCenterLineColor(int centerLineColor) {
+        this.centerLineColor = centerLineColor;
+    }
+
+    public void setCenterLineAlpha(float centerLineAlpha) {
+        this.centerLineAlpha = centerLineAlpha;
+    }
+
+    public void setChoiceMaskColor(int choiceMaskColor) {
+        this.choiceMaskColor = choiceMaskColor;
+    }
+
+    public void setChoiceMaskAlpha(float choiceMaskAlpha) {
+        this.choiceMaskAlpha = choiceMaskAlpha;
+    }
+
+    public void setDisplayChoiceMaskFrame(boolean displayChoiceMaskFrame) {
+        this.displayChoiceMaskFrame = displayChoiceMaskFrame;
+    }
+
     public void swapeTextures(){
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
@@ -428,6 +460,8 @@ public class PictureComparatorRenderer implements Renderer {
         if (null != onSurfaceCreatedCallback)
             onSurfaceCreatedCallback.onSurfaceCreated();
 
+        choiceMaskFrame = new Rect2DFrame(glSurfaceView.getWidth(), glSurfaceView.getHeight());
+
         Utils.v(TAG, "onSurfaceCreated, layoutRatio: " + layoutRatio);
     }
 
@@ -456,7 +490,7 @@ public class PictureComparatorRenderer implements Renderer {
         }
 
         // Picture 1
-        if (isPicture1Ready() && null != textureChoice1Program) {
+        if (isPicture1Ready() && null != textureChoice1Program && null != glPictureChoice1) {
 
             glPictureChoice1.clipTexture(cw1, ch1);
             positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
@@ -467,7 +501,7 @@ public class PictureComparatorRenderer implements Renderer {
         }
 
         // Picture 2
-        if (isPicture2Ready() && null != textureChoice2Program) {
+        if (isPicture2Ready() && null != textureChoice2Program && null != glPictureChoice2) {
             glPictureChoice2.clipTexture(cw2, ch2);
             positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
             textureChoice2Program.useProgram();
@@ -476,22 +510,36 @@ public class PictureComparatorRenderer implements Renderer {
             glPictureChoice2.draw();
         }
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         // CenterLine
         if (null != centerLine && null != colorShaderProgram) {
             // http://stackoverflow.com/questions/11174991/android-opengl-es-1-0-alpha
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             positionAndScaleObject2DInScene(centerX, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
             colorShaderProgram.setUniforms(modelProjectionMatrix,
                     (float) Color.red(centerLineColor) / 255,
                     (float) Color.green(centerLineColor) / 255,
                     (float) Color.blue(centerLineColor) / 255,
-                    1f);
+                    centerLineAlpha);
             centerLine.bindData(colorShaderProgram);
             centerLine.draw();
-            glDisable(GL_BLEND);
+
         }
+
+        if (displayChoiceMaskFrame && null != choiceMaskFrame && null != colorShaderProgram) {
+            colorShaderProgram.useProgram();
+            colorShaderProgram.setUniforms(modelProjectionMatrix,
+                    (float) Color.red(choiceMaskColor) / 255,
+                    (float) Color.green(choiceMaskColor) / 255,
+                    (float) Color.blue(choiceMaskColor) / 255,
+                    choiceMaskAlpha);
+            choiceMaskFrame.bindData(colorShaderProgram);
+            choiceMaskFrame.draw();
+        }
+
+        glDisable(GL_BLEND);
     }
 
     private void onAnimation() {
