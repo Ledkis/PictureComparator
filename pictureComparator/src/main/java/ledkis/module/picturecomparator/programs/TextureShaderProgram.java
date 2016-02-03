@@ -8,6 +8,7 @@ import static android.opengl.GLES20.glActiveTexture;
 import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
+import static android.opengl.GLES20.glUniform1f;
 import static android.opengl.GLES20.glUniform1i;
 import static android.opengl.GLES20.glUniformMatrix4fv;
 
@@ -15,6 +16,7 @@ public class TextureShaderProgram extends ShaderProgram {
     // Uniform locations
     private final int uMatrixLocation;
     private final int uTextureUnitLocation;
+    private final int uAlphaLocation;
     
     // Attribute locations
     private final int aPositionLocation;
@@ -35,9 +37,12 @@ public class TextureShaderProgram extends ShaderProgram {
             "precision mediump float;\n" +
                     "uniform sampler2D u_TextureUnit;\n" +
                     "varying vec2 v_TextureCoordinates;\n" +
+                    "uniform float u_Alpha;\n" +
                     "\n" +
                     "void main(){\n" +
-                    "gl_FragColor = texture2D(u_TextureUnit, v_TextureCoordinates);\n" +
+                    "vec4 v4Colour = texture2D(u_TextureUnit, v_TextureCoordinates);\n" +
+                    "v4Colour.a = u_Alpha;\n" +
+                    "gl_FragColor = v4Colour;\n" +
                     "}";
 
     public TextureShaderProgram(Context context) {
@@ -46,15 +51,18 @@ public class TextureShaderProgram extends ShaderProgram {
         // Retrieve uniform locations for the shader program.
         uMatrixLocation = glGetUniformLocation(program, U_MATRIX);
         uTextureUnitLocation = glGetUniformLocation(program, U_TEXTURE_UNIT);
+
+        uAlphaLocation = glGetUniformLocation(program, U_ALPHA);
         
         // Retrieve attribute locations for the shader program.
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
         aTextureCoordinatesLocation = glGetAttribLocation(program, A_TEXTURE_COORDINATES);
     }
 
-    public void setUniforms(float[] matrix, int textureId) {
+    public void setUniforms(float[] matrix, int textureId, float alpha) {
         // Pass the matrix into the shader program.
         glUniformMatrix4fv(uMatrixLocation, 1, false, matrix, 0);
+        glUniform1f(uAlphaLocation, alpha);
 
         // Set the active texture unit to texture unit 0.
         glActiveTexture(GL_TEXTURE0);

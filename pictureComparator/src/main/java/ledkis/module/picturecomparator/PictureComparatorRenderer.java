@@ -141,6 +141,8 @@ public class PictureComparatorRenderer implements Renderer {
 
     private float centerX;
 
+    private float picturesAlpha;
+
     private int centerLineColor;
     private float centerLineAlpha;
 
@@ -184,6 +186,8 @@ public class PictureComparatorRenderer implements Renderer {
         this.animate = true;
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
+
+        picturesAlpha = 1f;
 
         centerLineColor = Color.WHITE;
         centerLineAlpha = 1f;
@@ -508,6 +512,10 @@ public class PictureComparatorRenderer implements Renderer {
         this.choice2ProgressRectColor = choice2ProgressRectColor;
     }
 
+    public void setPicturesAlpha(float picturesAlpha) {
+        this.picturesAlpha = picturesAlpha;
+    }
+
     public void swapeTextures() {
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
@@ -580,13 +588,16 @@ public class PictureComparatorRenderer implements Renderer {
             updateTextures();
         }
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         // Picture 1
         if (isPicture1Ready() && null != textureChoice1Program && null != glPictureChoice1) {
 
             glPictureChoice1.clipTexture(cw1, ch1);
             positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
             textureChoice1Program.useProgram();
-            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId());
+            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), picturesAlpha);
             glPictureChoice1.bindData(textureChoice1Program);
             glPictureChoice1.draw();
         }
@@ -596,13 +607,11 @@ public class PictureComparatorRenderer implements Renderer {
             glPictureChoice2.clipTexture(cw2, ch2);
             positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
             textureChoice2Program.useProgram();
-            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId());
+            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), picturesAlpha);
             glPictureChoice2.bindData(textureChoice2Program);
             glPictureChoice2.draw();
         }
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // CenterLine
         if (null != centerLine && null != colorShaderProgram) {
@@ -613,7 +622,7 @@ public class PictureComparatorRenderer implements Renderer {
                     (float) Color.red(centerLineColor) / 255,
                     (float) Color.green(centerLineColor) / 255,
                     (float) Color.blue(centerLineColor) / 255,
-                    centerLineAlpha);
+                    picturesAlpha * centerLineAlpha);
             centerLine.bindData(colorShaderProgram);
             centerLine.draw();
 
@@ -630,8 +639,6 @@ public class PictureComparatorRenderer implements Renderer {
             choiceMaskFrame.bindData(colorShaderProgram);
             choiceMaskFrame.draw();
         }
-
-        glDisable(GL_BLEND);
 
         if (displayChoicesProgress) {
             if (null != choice1ProgressRect && null != colorShaderProgram) {
@@ -658,6 +665,8 @@ public class PictureComparatorRenderer implements Renderer {
                 choice2ProgressRect.draw();
             }
         }
+
+        glDisable(GL_BLEND);
 
     }
 

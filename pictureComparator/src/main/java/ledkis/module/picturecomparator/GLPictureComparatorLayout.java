@@ -45,8 +45,10 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             // Request an OpenGL ES 2.0 compatible context.
             setEGLContextClientVersion(2);
 
-            //  http://stackoverflow.com/questions/14167319/android-opengl-demo-no-config-chosen
+//            setZOrderOnTop(true);
+//              http://stackoverflow.com/questions/14167319/android-opengl-demo-no-config-chosen
             setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+//            getHolder().setFormat(PixelFormat.RGBA_8888);
             getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
             render = new PictureComparatorRenderer(getContext(), this);
@@ -211,6 +213,11 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
     public void setChoice2ProgressRectColor(int choice2ProgressRectColor) {
         if (null != render)
             render.setChoice2ProgressRectColor(choice2ProgressRectColor);
+    }
+
+    public void setPicturesAlpha(float picturesAlpha) {
+        if (null != render)
+            render.setPicturesAlpha(picturesAlpha);
     }
 
     public boolean supportsEs2() {
