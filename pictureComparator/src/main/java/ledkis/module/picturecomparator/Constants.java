@@ -59,6 +59,13 @@ public class Constants {
         public static final int BACK_BITMAP_PRE_ROTATION = 270;
         public static final int CUSTOM_BITMAP_PRE_ROTATION = 0;
 
+        // Progress Rect
+
+        public static final float PROGRESS_RECT_WIDTH = 0.12f;
+        public static final float PROGRESS_RECT_HEIGHT = NORMALIZED_DEVICE_MAX_HEIGHT;
+        public static final float PROGRESS_RECT_HEIGHT_CENTER_FACTOR = 0.1f;
+        public static final float PROGRESS_RECT_WIDTH_MIN_FACTOR = 0.3f;
+
 
     }
 

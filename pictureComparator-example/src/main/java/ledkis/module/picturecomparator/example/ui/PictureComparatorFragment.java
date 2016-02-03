@@ -76,6 +76,7 @@ public class PictureComparatorFragment extends Fragment {
         super.onResume();
         bus.register(this);
         pictureComparatorLayout.resume();
+        bus.post(new RequestSwitchVisibilityEvent());
     }
 
     @Override
@@ -141,8 +142,10 @@ public class PictureComparatorFragment extends Fragment {
             }
         });
 
-        pictureComparatorLayout.setDisplayChoiceMaskFrame(true);
-        pictureComparatorLayout.setChoiceMaskColor(Color.RED);
+        pictureComparatorLayout.setDisplayChoicesMaskFrame(true);
+        pictureComparatorLayout.setDisplayChoicesProgress(true);
+        pictureComparatorLayout.setChoice1ProgressRectColor(Color.RED);
+        pictureComparatorLayout.setChoice2ProgressRectColor(Color.GREEN);
 
         pictureComparatorLayout.setOnProgressChangeCallback(new PictureComparatorRenderer.OnProgressChangeCallback() {
             @Override
@@ -158,6 +161,20 @@ public class PictureComparatorFragment extends Fragment {
 
                 pictureComparatorLayout.setChoiceMaskAlpha(alpha);
 
+                pictureComparatorLayout.updateProgressRectAttributes(progress);
+
+            }
+        });
+
+        pictureComparatorLayout.setOnProgressRectClickCallback(new PictureComparatorRenderer.OnProgressRectClickCallback() {
+            @Override
+            public void onProgressRect1Click() {
+                pictureComparatorLayout.openChoice1Animation();
+            }
+
+            @Override
+            public void onProgressRect2Click() {
+                pictureComparatorLayout.openChoice2Animation();
             }
         });
 

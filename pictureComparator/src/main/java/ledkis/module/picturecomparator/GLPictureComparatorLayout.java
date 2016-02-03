@@ -155,6 +155,11 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setOnDisplayStateChangeCallback(onDisplayStateChangeCallback);
     }
 
+    public void setOnProgressRectClickCallback(PictureComparatorRenderer.OnProgressRectClickCallback onProgressRectClickCallback) {
+        if (null != render)
+            render.setOnProgressRectClickCallback(onProgressRectClickCallback);
+    }
+
     public float getCurrentProgress() {
         if (null != render)
             return render.getCurrentProgress();
@@ -183,9 +188,29 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setChoiceMaskAlpha(choiceMaskAlpha);
     }
 
-    public void setDisplayChoiceMaskFrame(boolean displayChoiceMaskFrame) {
+    public void setDisplayChoicesMaskFrame(boolean displayChoicesMaskFrame) {
         if (null != render)
-            render.setDisplayChoiceMaskFrame(displayChoiceMaskFrame);
+            render.setDisplayChoicesMaskFrame(displayChoicesMaskFrame);
+    }
+
+    public void updateProgressRectAttributes(float progress) {
+        if (null != render)
+            render.updateProgressRectAttributes(progress);
+    }
+
+    public void setDisplayChoicesProgress(boolean displayChoicesProgress) {
+        if (null != render)
+            render.setDisplayChoicesProgress(displayChoicesProgress);
+    }
+
+    public void setChoice1ProgressRectColor(int choice1ProgressRectColor) {
+        if (null != render)
+            render.setChoice1ProgressRectColor(choice1ProgressRectColor);
+    }
+
+    public void setChoice2ProgressRectColor(int choice2ProgressRectColor) {
+        if (null != render)
+            render.setChoice2ProgressRectColor(choice2ProgressRectColor);
     }
 
     public boolean supportsEs2() {

@@ -14,6 +14,7 @@ import ledkis.module.picturecomparator.objects.Rect2DFrame;
 import ledkis.module.picturecomparator.programs.ColorShaderProgram;
 import ledkis.module.picturecomparator.programs.TextureShaderProgram;
 import ledkis.module.picturecomparator.util.CubicBezierInterpolator;
+import ledkis.module.picturecomparator.util.Geometry2D;
 import ledkis.module.picturecomparator.util.TextureChange;
 import ledkis.module.picturecomparator.util.Utils;
 
@@ -45,6 +46,10 @@ import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
+import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_RECT_HEIGHT;
+import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_RECT_HEIGHT_CENTER_FACTOR;
+import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_RECT_WIDTH;
+import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_RECT_WIDTH_MIN_FACTOR;
 import static ledkis.module.picturecomparator.Constants.Layout.X0;
 import static ledkis.module.picturecomparator.Constants.Layout.X1;
 import static ledkis.module.picturecomparator.Constants.Layout.Y0;
@@ -84,6 +89,12 @@ public class PictureComparatorRenderer implements Renderer {
         void onDisplayStateChange(DisplayState displayState);
     }
 
+    public interface OnProgressRectClickCallback {
+        void onProgressRect1Click();
+
+        void onProgressRect2Click();
+    }
+
     public enum PicturesState {
         CHOICE_1,
         CHOICE_2,
@@ -105,6 +116,9 @@ public class PictureComparatorRenderer implements Renderer {
 
     private Rect2DFrame choiceMaskFrame;
     private Rect2DFrame centerLine;
+
+    private Rect2DFrame choice1ProgressRect;
+    private Rect2DFrame choice2ProgressRect;
 
     private GlPictureChoice glPictureChoice1;
     private GlPictureChoice glPictureChoice2;
@@ -130,15 +144,23 @@ public class PictureComparatorRenderer implements Renderer {
     private int centerLineColor;
     private float centerLineAlpha;
 
-    private boolean displayChoiceMaskFrame;
+    private boolean displayChoicesMaskFrame;
     private int choiceMaskColor;
     private float choiceMaskAlpha;
+
+    private boolean displayChoicesProgress;
+    private int choice1ProgressRectColor;
+    private int choice2ProgressRectColor;
+
+    private float pR1X, pR1Wf, pR1Hf; // progressRect1X, WidthFactor, HeightFactor
+    private float pR2X, pR2Wf, pR2Hf;
 
     private Callback callback;
     private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
     private OnProgressChangeCallback onProgressChangeCallback;
     private OnPicturesStateChangeCallback onPicturesStateChangeCallback;
     private OnDisplayStateChangeCallback onDisplayStateChangeCallback;
+    private OnProgressRectClickCallback onProgressRectClickCallback;
 
     private GLSurfaceView glSurfaceView;
 
@@ -166,9 +188,13 @@ public class PictureComparatorRenderer implements Renderer {
         centerLineColor = Color.WHITE;
         centerLineAlpha = 1f;
 
-        displayChoiceMaskFrame = false;
+        displayChoicesMaskFrame = false;
         choiceMaskColor = Color.WHITE;
         choiceMaskAlpha = 0f;
+
+        displayChoicesProgress = false;
+        choice1ProgressRectColor = Color.WHITE;
+        choice2ProgressRectColor = Color.WHITE;
 
         displayState = DisplayState.CENTER;
 
@@ -206,6 +232,32 @@ public class PictureComparatorRenderer implements Renderer {
         releaseAnimation(progress);
 
         setLayout(progress);
+
+        if (displayChoicesProgress) {
+
+            Geometry2D.Point2D p = new Geometry2D.Point2D(normalizedX, normalizedY);
+
+            Geometry2D.Rect2D progressRect1Bounding = new Geometry2D.Rect2D(
+                    new Geometry2D.Point2D(pR1X, 0f),
+                    pR1Wf * PROGRESS_RECT_WIDTH,
+                    pR1Hf * PROGRESS_RECT_HEIGHT);
+            boolean progressRect1Click = Geometry2D.intersects(progressRect1Bounding, p);
+
+            Geometry2D.Rect2D progressRect2Bounding = new Geometry2D.Rect2D(
+                    new Geometry2D.Point2D(pR2X, 0f),
+                    pR2Wf * PROGRESS_RECT_WIDTH,
+                    pR2Hf * PROGRESS_RECT_HEIGHT);
+            boolean progressRect2Click = Geometry2D.intersects(progressRect2Bounding, p);
+
+            if (null != onProgressRectClickCallback) {
+                if (progressRect1Click) {
+                    onProgressRectClickCallback.onProgressRect1Click();
+                }
+                if (progressRect2Click) {
+                    onProgressRectClickCallback.onProgressRect2Click();
+                }
+            }
+        }
 
         if (null != callback)
             callback.onHandleTouchUp(normalizedX, normalizedY);
@@ -360,6 +412,26 @@ public class PictureComparatorRenderer implements Renderer {
         }
     }
 
+    public void updateProgressRectAttributes(float progress) {
+
+        if (ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
+            pR1Hf = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE, MAX_ABS_PROGRESS_VALUE, PROGRESS_RECT_HEIGHT_CENTER_FACTOR, 1f);
+            pR1Wf = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE, MAX_ABS_PROGRESS_VALUE, 1f, PROGRESS_RECT_WIDTH_MIN_FACTOR);
+
+            pR2Hf = PROGRESS_RECT_HEIGHT_CENTER_FACTOR;
+            pR2Wf = 1f;
+        } else {
+            pR1Hf = PROGRESS_RECT_HEIGHT_CENTER_FACTOR;
+            pR1Wf = 1f;
+
+            pR2Hf = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE, MAX_ABS_PROGRESS_VALUE, PROGRESS_RECT_HEIGHT_CENTER_FACTOR, 1f);
+            pR2Wf = Utils.map(Math.abs(progress), PROGRESS_CENTER_VALUE, MAX_ABS_PROGRESS_VALUE, 1f, PROGRESS_RECT_WIDTH_MIN_FACTOR);
+        }
+
+        pR1X = MIN_NORMALIZED_DEVICE_X + pR1Wf * PROGRESS_RECT_WIDTH / 2;
+        pR2X = MAX_NORMALIZED_DEVICE_X - pR2Wf * PROGRESS_RECT_WIDTH / 2;
+    }
+
     public void setCallback(Callback callback) {
         this.callback = callback;
     }
@@ -378,6 +450,10 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void setOnDisplayStateChangeCallback(OnDisplayStateChangeCallback onDisplayStateChangeCallback) {
         this.onDisplayStateChangeCallback = onDisplayStateChangeCallback;
+    }
+
+    public void setOnProgressRectClickCallback(OnProgressRectClickCallback onProgressRectClickCallback) {
+        this.onProgressRectClickCallback = onProgressRectClickCallback;
     }
 
     public void setGlPictureChoice1(GlPictureChoice glPictureChoice1) {
@@ -416,11 +492,23 @@ public class PictureComparatorRenderer implements Renderer {
         this.choiceMaskAlpha = choiceMaskAlpha;
     }
 
-    public void setDisplayChoiceMaskFrame(boolean displayChoiceMaskFrame) {
-        this.displayChoiceMaskFrame = displayChoiceMaskFrame;
+    public void setDisplayChoicesMaskFrame(boolean displayChoicesMaskFrame) {
+        this.displayChoicesMaskFrame = displayChoicesMaskFrame;
     }
 
-    public void swapeTextures(){
+    public void setDisplayChoicesProgress(boolean displayChoicesProgress) {
+        this.displayChoicesProgress = displayChoicesProgress;
+    }
+
+    public void setChoice1ProgressRectColor(int choice1ProgressRectColor) {
+        this.choice1ProgressRectColor = choice1ProgressRectColor;
+    }
+
+    public void setChoice2ProgressRectColor(int choice2ProgressRectColor) {
+        this.choice2ProgressRectColor = choice2ProgressRectColor;
+    }
+
+    public void swapeTextures() {
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
             Bitmap texture1Bitmap = glPictureChoice1.getTextureBitmap();
@@ -460,7 +548,10 @@ public class PictureComparatorRenderer implements Renderer {
         if (null != onSurfaceCreatedCallback)
             onSurfaceCreatedCallback.onSurfaceCreated();
 
-        choiceMaskFrame = new Rect2DFrame(glSurfaceView.getWidth(), glSurfaceView.getHeight());
+        choiceMaskFrame = new Rect2DFrame(NORMALIZED_DEVICE_MAX_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
+
+        choice1ProgressRect = new Rect2DFrame(PROGRESS_RECT_WIDTH, PROGRESS_RECT_HEIGHT);
+        choice2ProgressRect = new Rect2DFrame(PROGRESS_RECT_WIDTH, PROGRESS_RECT_HEIGHT);
 
         Utils.v(TAG, "onSurfaceCreated, layoutRatio: " + layoutRatio);
     }
@@ -528,7 +619,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         }
 
-        if (displayChoiceMaskFrame && null != choiceMaskFrame && null != colorShaderProgram) {
+        if (displayChoicesMaskFrame && null != choiceMaskFrame && null != colorShaderProgram) {
+            positionAndScaleObject2DInScene(0f, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
             colorShaderProgram.setUniforms(modelProjectionMatrix,
                     (float) Color.red(choiceMaskColor) / 255,
@@ -540,6 +632,33 @@ public class PictureComparatorRenderer implements Renderer {
         }
 
         glDisable(GL_BLEND);
+
+        if (displayChoicesProgress) {
+            if (null != choice1ProgressRect && null != colorShaderProgram) {
+                positionAndScaleObject2DInScene(pR1X, 0f, pR1Wf, pR1Hf);
+                colorShaderProgram.useProgram();
+                colorShaderProgram.setUniforms(modelProjectionMatrix,
+                        (float) Color.red(choice1ProgressRectColor) / 255,
+                        (float) Color.green(choice1ProgressRectColor) / 255,
+                        (float) Color.blue(choice1ProgressRectColor) / 255,
+                        1f);
+                choice1ProgressRect.bindData(colorShaderProgram);
+                choice1ProgressRect.draw();
+            }
+
+            if (null != choice2ProgressRect && null != colorShaderProgram) {
+                positionAndScaleObject2DInScene(pR2X, 0f, pR2Wf, pR2Hf);
+                colorShaderProgram.useProgram();
+                colorShaderProgram.setUniforms(modelProjectionMatrix,
+                        (float) Color.red(choice2ProgressRectColor) / 255,
+                        (float) Color.green(choice2ProgressRectColor) / 255,
+                        (float) Color.blue(choice2ProgressRectColor) / 255,
+                        1f);
+                choice2ProgressRect.bindData(colorShaderProgram);
+                choice2ProgressRect.draw();
+            }
+        }
+
     }
 
     private void onAnimation() {
