@@ -42,8 +42,8 @@ import static ledkis.module.picturecomparator.Constants.Layout.CHOICE1_START_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE2_START_X;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_1_FINAL_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_2_FINAL_PROGRESS_VALUE;
-import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_THRESHOLD;
-import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
+import static ledkis.module.picturecomparator.Constants.Layout.DEFAULT_CHOICE_THRESHOLD;
+import static ledkis.module.picturecomparator.Constants.Layout.DEFAULT_FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
 import static ledkis.module.picturecomparator.Constants.Layout.PICTURES_INVISIBLE;
@@ -131,6 +131,9 @@ public class PictureComparatorRenderer implements Renderer {
 
     private ColorShaderProgram colorShaderProgram;
 
+    private float fadeTime;
+    private float threshold;
+
     private float currentProgress;
     private float touchProgress;
     private float lastNormalizedX;
@@ -190,6 +193,9 @@ public class PictureComparatorRenderer implements Renderer {
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
+
+        fadeTime = DEFAULT_FADE_TIME;
+        threshold = DEFAULT_CHOICE_THRESHOLD;
 
         this.animate = true;
 
@@ -513,11 +519,11 @@ public class PictureComparatorRenderer implements Renderer {
         this.choiceMaskAlpha = choiceMaskAlpha;
     }
 
-    public void setDisplayChoicesMaskFrame(boolean displayChoicesMaskFrame) {
+    public void displayMask(boolean displayChoicesMaskFrame) {
         this.displayChoicesMaskFrame = displayChoicesMaskFrame;
     }
 
-    public void setDisplayChoicesProgress(boolean displayChoicesProgress) {
+    public void displayProgress(boolean displayChoicesProgress) {
         this.displayChoicesProgress = displayChoicesProgress;
     }
 
@@ -550,6 +556,14 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void setLinkProgressAndPictureState(boolean linkProgressAndPictureState) {
         this.linkProgressAndPictureState = linkProgressAndPictureState;
+    }
+
+    public void setThreshold(float threshold) {
+        this.threshold = threshold;
+    }
+
+    public void setFadeTime(float fadeTime) {
+        this.fadeTime = fadeTime;
     }
 
     public void swapeTextures() {
@@ -709,13 +723,13 @@ public class PictureComparatorRenderer implements Renderer {
     private void onAnimation() {
         long t = System.currentTimeMillis() - animationStartTime;
 
-        float nt = interpolator.getInterpolation(Utils.map(t, 0f, FADE_TIME, 0f, 1f));
+        float nt = interpolator.getInterpolation(Utils.map(t, 0f, fadeTime, 0f, 1f));
 
         float progress = Utils.map(nt, 0f, 1f, releaseProgress, finalValue);
 
         setLayout(progress);
 
-        if (t > FADE_TIME) {
+        if (t > fadeTime) {
             onAnimation = false;
         }
     }
@@ -732,7 +746,7 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     private void releaseAnimation(float progress) {
-        finalValue = Utils.getFinalThresholdValue(progress, CHOICE_THRESHOLD);
+        finalValue = Utils.getFinalThresholdValue(progress, threshold);
         if (CHOICE_1_FINAL_PROGRESS_VALUE == finalValue) {
             openChoice1Animation();
         } else if (CHOICE_2_FINAL_PROGRESS_VALUE == finalValue) {

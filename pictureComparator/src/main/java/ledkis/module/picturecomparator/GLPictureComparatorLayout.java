@@ -197,9 +197,9 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setChoiceMaskAlpha(choiceMaskAlpha);
     }
 
-    public void setDisplayChoicesMaskFrame(boolean displayChoicesMaskFrame) {
+    public void displayMask(boolean displayChoicesMaskFrame) {
         if (null != render)
-            render.setDisplayChoicesMaskFrame(displayChoicesMaskFrame);
+            render.displayMask(displayChoicesMaskFrame);
     }
 
     public void updateProgressRectAttributes(float progress) {
@@ -207,9 +207,9 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.updateProgressRectAttributes(progress);
     }
 
-    public void setDisplayChoicesProgress(boolean displayChoicesProgress) {
+    public void displayProgress(boolean displayChoicesProgress) {
         if (null != render)
-            render.setDisplayChoicesProgress(displayChoicesProgress);
+            render.displayProgress(displayChoicesProgress);
     }
 
     public void setChoice1ProgressRectColor(int choice1ProgressRectColor) {
@@ -240,6 +240,16 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
     public void setLinkProgressAndPictureState(boolean linkProgressAndPictureState) {
         if (null != render)
             render.setLinkProgressAndPictureState(linkProgressAndPictureState);
+    }
+
+    public void setThreshold(float threshold) {
+        if (null != render)
+            render.setThreshold(threshold);
+    }
+
+    public void setFadeTime(float fadeTime) {
+        if (null != render)
+            render.setFadeTime(fadeTime);
     }
 
 

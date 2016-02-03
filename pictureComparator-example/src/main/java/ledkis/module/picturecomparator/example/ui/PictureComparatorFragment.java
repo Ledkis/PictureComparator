@@ -144,8 +144,8 @@ public class PictureComparatorFragment extends Fragment {
             }
         });
 
-        pictureComparatorLayout.setDisplayChoicesMaskFrame(true);
-        pictureComparatorLayout.setDisplayChoicesProgress(true);
+        pictureComparatorLayout.displayMask(true);
+        pictureComparatorLayout.displayProgress(true);
         pictureComparatorLayout.setChoice1ProgressRectColor(Color.RED);
         pictureComparatorLayout.setChoice2ProgressRectColor(Color.GREEN);
 

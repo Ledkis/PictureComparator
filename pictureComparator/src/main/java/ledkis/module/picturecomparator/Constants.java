@@ -38,8 +38,8 @@ public class Constants {
 
         public static final float CENTER_WIDTH = NORMALIZED_DEVICE_MAX_WIDTH / 2;
 
-        public static final int FADE_TIME = 1000;
-        public static final float CHOICE_THRESHOLD = 0.5f;
+        public static final int DEFAULT_FADE_TIME = 1000;
+        public static final float DEFAULT_CHOICE_THRESHOLD = 0.5f;
 
         // Bezier interpolation
         // http://cubic-bezier.com/#.16,.42,.34,1
