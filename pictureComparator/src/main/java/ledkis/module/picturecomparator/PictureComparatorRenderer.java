@@ -185,6 +185,8 @@ public class PictureComparatorRenderer implements Renderer {
 
     private DisplayState displayState;
 
+    private boolean linkProgressAndPictureState;
+
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
         this.glSurfaceView = glSurfaceView;
@@ -210,6 +212,8 @@ public class PictureComparatorRenderer implements Renderer {
         choicesProgressRectAlpha = 1f;
 
         displayState = DisplayState.CENTER;
+
+        linkProgressAndPictureState = true;
 
 //        layoutRatio = 1.7777778f;
 
@@ -323,23 +327,27 @@ public class PictureComparatorRenderer implements Renderer {
             centerLine = null;
         }
 
-        switch (picturesState) {
-            case CHOICE_1:
-                progress = CHOICE_1_FINAL_PROGRESS_VALUE;
-                break;
-            case CHOICE_2:
-                progress = CHOICE_2_FINAL_PROGRESS_VALUE;
-                break;
-            case NONE:
+        if (linkProgressAndPictureState) {
+
+            switch (picturesState) {
+                case CHOICE_1:
+                    progress = CHOICE_1_FINAL_PROGRESS_VALUE;
+                    break;
+                case CHOICE_2:
+                    progress = CHOICE_2_FINAL_PROGRESS_VALUE;
+                    break;
+                case NONE:
+                    progress = PROGRESS_CENTER_VALUE;
+                    break;
+            }
+
+            boolean from1to2Pictures = (PicturesState.CHOICE_1 == lastPicturesState || PicturesState.CHOICE_2 == lastPicturesState)
+                    && (PicturesState.CHOICE_1_AND_2 == picturesState);
+
+            if (from1to2Pictures)
                 progress = PROGRESS_CENTER_VALUE;
-                break;
+
         }
-
-        boolean from1to2Pictures = (PicturesState.CHOICE_1 == lastPicturesState || PicturesState.CHOICE_2 == lastPicturesState)
-                && (PicturesState.CHOICE_1_AND_2 == picturesState);
-
-        if (from1to2Pictures)
-            progress = PROGRESS_CENTER_VALUE;
 
         setCurrentProgress(progress);
 
@@ -540,6 +548,10 @@ public class PictureComparatorRenderer implements Renderer {
         this.choicesProgressRectAlpha = choicesProgressRectAlpha;
     }
 
+    public void setLinkProgressAndPictureState(boolean linkProgressAndPictureState) {
+        this.linkProgressAndPictureState = linkProgressAndPictureState;
+    }
+
     public void swapeTextures() {
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
@@ -710,11 +722,13 @@ public class PictureComparatorRenderer implements Renderer {
 
     private void updateTextures() {
 
-        boolean texture1Changed = null != glPictureChoice1 && glPictureChoice1.updateBitmap(context, layoutRatio);
-        boolean texture2Changed = null != glPictureChoice2 && glPictureChoice2.updateBitmap(context, layoutRatio);
+        if (linkProgressAndPictureState) {
+            boolean texture1Changed = null != glPictureChoice1 && glPictureChoice1.updateBitmap(context, layoutRatio);
+            boolean texture2Changed = null != glPictureChoice2 && glPictureChoice2.updateBitmap(context, layoutRatio);
+            if (texture1Changed || texture2Changed)
+                updateLayout();
+        }
 
-        if (texture1Changed || texture2Changed)
-            updateLayout();
     }
 
     private void releaseAnimation(float progress) {
