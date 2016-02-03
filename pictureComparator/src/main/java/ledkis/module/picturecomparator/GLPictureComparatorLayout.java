@@ -232,6 +232,12 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setPicturesAlpha(picturesAlpha);
     }
 
+    public void setChoicesProgressRectAlpha(float choicesProgressRectAlpha) {
+        if (null != render)
+            render.setChoicesProgressRectAlpha(choicesProgressRectAlpha);
+    }
+
+
     public boolean supportsEs2() {
         // Check if the system supports OpenGL ES 2.0.
         ActivityManager activityManager =
