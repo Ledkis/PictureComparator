@@ -66,13 +66,13 @@ public class PictureComparatorRenderer implements Renderer {
 
     public static final String TAG = "PictureComparatorRenderer";
 
-    public interface Callback {
+    public interface OnTouchCallback {
 
-        void onHandleTouchPress(float normalizedX, float normalizedY);
+        void onTouchPress(float normalizedX, float normalizedY);
 
-        void onHandleTouchDrag(float normalizedX, float normalizedY);
+        void onTouchDrag(float normalizedX, float normalizedY);
 
-        void onHandleTouchUp(float normalizedX, float normalizedY);
+        void onTouchUp(float normalizedX, float normalizedY);
 
     }
 
@@ -132,6 +132,7 @@ public class PictureComparatorRenderer implements Renderer {
     private ColorShaderProgram colorShaderProgram;
 
     private float currentProgress;
+    private float touchProgress;
     private float lastNormalizedX;
 
     private float layoutRatio;
@@ -161,7 +162,7 @@ public class PictureComparatorRenderer implements Renderer {
     private float pR1X, pR1Wf, pR1Hf; // progressRect1X, WidthFactor, HeightFactor
     private float pR2X, pR2Wf, pR2Hf;
 
-    private Callback callback;
+    private OnTouchCallback onTouchCallback;
     private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
     private OnProgressChangeCallback onProgressChangeCallback;
     private OnPicturesStateChangeCallback onPicturesStateChangeCallback;
@@ -217,8 +218,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         onAnimation = false;
 
-        if (null != callback)
-            callback.onHandleTouchPress(normalizedX, normalizedY);
+        if (null != onTouchCallback)
+            onTouchCallback.onTouchPress(normalizedX, normalizedY);
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
@@ -230,8 +231,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         setLayout(progress);
 
-        if (null != callback)
-            callback.onHandleTouchDrag(normalizedX, normalizedY);
+        if (null != onTouchCallback)
+            onTouchCallback.onTouchDrag(normalizedX, normalizedY);
     }
 
     public void handleTouchUp(float normalizedX, float normalizedY) {
@@ -269,8 +270,8 @@ public class PictureComparatorRenderer implements Renderer {
             }
         }
 
-        if (null != callback)
-            callback.onHandleTouchUp(normalizedX, normalizedY);
+        if (null != onTouchCallback)
+            onTouchCallback.onTouchUp(normalizedX, normalizedY);
 
     }
 
@@ -442,8 +443,8 @@ public class PictureComparatorRenderer implements Renderer {
         pR2X = MAX_NORMALIZED_DEVICE_X - pR2Wf * PROGRESS_RECT_WIDTH / 2;
     }
 
-    public void setCallback(Callback callback) {
-        this.callback = callback;
+    public void setOnTouchCallback(OnTouchCallback onTouchCallback) {
+        this.onTouchCallback = onTouchCallback;
     }
 
     public void setOnSurfaceCreatedCallback(OnSurfaceCreatedCallback onSurfaceCreatedCallback) {
