@@ -124,6 +124,8 @@ public class PictureComparatorFragment extends Fragment {
         glPictureChoice1 = new GlPictureChoice();
         glPictureChoice2 = new GlPictureChoice();
 
+        pictureComparatorLayout.init(true);
+
         pictureComparatorLayout.setGlPictureChoices(glPictureChoice1, glPictureChoice2);
 
         pictureComparatorLayout.setOnDisplayStateChangeCallback(new PictureComparatorRenderer.OnDisplayStateChangeCallback() {
@@ -262,8 +264,8 @@ public class PictureComparatorFragment extends Fragment {
         bottomRightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                bus.post(new RequestSwitchVisibilityEvent(bottomRightButtonFlag));
-//                bottomRightButtonFlag = !bottomRightButtonFlag;
+                pictureComparatorLayout.setPicturesVisibility(bottomRightButtonFlag ? View.VISIBLE : View.INVISIBLE);
+                bottomRightButtonFlag = !bottomRightButtonFlag;
 
             }
         });

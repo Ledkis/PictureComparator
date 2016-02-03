@@ -66,6 +66,9 @@ public class Constants {
         public static final float PROGRESS_RECT_HEIGHT_CENTER_FACTOR = 0.1f;
         public static final float PROGRESS_RECT_WIDTH_MIN_FACTOR = 0.3f;
 
+        // Pictures Visibility
+        public static final float PICTURES_VISIBLE = 1f;
+        public static final float PICTURES_INVISIBLE = 0f;
 
     }
 

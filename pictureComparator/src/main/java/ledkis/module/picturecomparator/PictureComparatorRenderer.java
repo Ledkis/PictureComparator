@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
+import android.view.View;
 import android.view.animation.Interpolator;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -45,6 +46,8 @@ import static ledkis.module.picturecomparator.Constants.Layout.CHOICE_THRESHOLD;
 import static ledkis.module.picturecomparator.Constants.Layout.FADE_TIME;
 import static ledkis.module.picturecomparator.Constants.Layout.MAX_ABS_PROGRESS_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.NO_CLIP;
+import static ledkis.module.picturecomparator.Constants.Layout.PICTURES_INVISIBLE;
+import static ledkis.module.picturecomparator.Constants.Layout.PICTURES_VISIBLE;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_CENTER_VALUE;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_RECT_HEIGHT;
 import static ledkis.module.picturecomparator.Constants.Layout.PROGRESS_RECT_HEIGHT_CENTER_FACTOR;
@@ -141,6 +144,7 @@ public class PictureComparatorRenderer implements Renderer {
 
     private float centerX;
 
+    private float picturesVisibility;
     private float picturesAlpha;
 
     private int centerLineColor;
@@ -186,6 +190,8 @@ public class PictureComparatorRenderer implements Renderer {
         this.animate = true;
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
+
+        picturesVisibility = PICTURES_VISIBLE;
 
         picturesAlpha = 1f;
 
@@ -512,6 +518,17 @@ public class PictureComparatorRenderer implements Renderer {
         this.choice2ProgressRectColor = choice2ProgressRectColor;
     }
 
+    public void setPicturesVisibility(int visibility) {
+        if (View.VISIBLE == visibility) {
+            picturesVisibility = PICTURES_VISIBLE;
+        } else if (View.INVISIBLE == visibility || View.GONE == visibility) {
+            // TODO optim GONE
+            picturesVisibility = PICTURES_INVISIBLE;
+        } else {
+            picturesVisibility = PICTURES_VISIBLE;
+        }
+    }
+
     public void setPicturesAlpha(float picturesAlpha) {
         this.picturesAlpha = picturesAlpha;
     }
@@ -597,7 +614,7 @@ public class PictureComparatorRenderer implements Renderer {
             glPictureChoice1.clipTexture(cw1, ch1);
             positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
             textureChoice1Program.useProgram();
-            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), picturesAlpha);
+            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), picturesAlpha * picturesVisibility);
             glPictureChoice1.bindData(textureChoice1Program);
             glPictureChoice1.draw();
         }
@@ -607,7 +624,7 @@ public class PictureComparatorRenderer implements Renderer {
             glPictureChoice2.clipTexture(cw2, ch2);
             positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
             textureChoice2Program.useProgram();
-            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), picturesAlpha);
+            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), picturesAlpha * picturesVisibility);
             glPictureChoice2.bindData(textureChoice2Program);
             glPictureChoice2.draw();
         }
@@ -622,7 +639,7 @@ public class PictureComparatorRenderer implements Renderer {
                     (float) Color.red(centerLineColor) / 255,
                     (float) Color.green(centerLineColor) / 255,
                     (float) Color.blue(centerLineColor) / 255,
-                    picturesAlpha * centerLineAlpha);
+                    picturesAlpha * centerLineAlpha * picturesVisibility);
             centerLine.bindData(colorShaderProgram);
             centerLine.draw();
 
