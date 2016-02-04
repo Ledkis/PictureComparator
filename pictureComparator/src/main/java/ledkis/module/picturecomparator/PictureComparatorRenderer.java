@@ -136,6 +136,7 @@ public class PictureComparatorRenderer implements Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] modelProjectionMatrix = new float[16];
 
+    // TODO opengl not working when setZOrderOnTop(true)... Order Independent Transparency problem type
     private Rect2DFrame backgroundFrame;
 
     private Rect2DFrame choiceMaskFrame;

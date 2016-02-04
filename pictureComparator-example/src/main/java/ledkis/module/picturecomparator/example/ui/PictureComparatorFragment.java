@@ -165,6 +165,8 @@ public class PictureComparatorFragment extends Fragment {
 
                 pictureComparatorLayout.updateProgressRectAttributes(progress);
 
+                pictureComparatorLayout.setBackgroundFrameAlpha(1f);
+                pictureComparatorLayout.setCenterLineAlpha(1f);
                 pictureComparatorLayout.setPicturesAlpha(alpha);
             }
         });
