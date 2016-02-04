@@ -119,6 +119,7 @@ public class PictureComparatorRenderer implements Renderer {
     public enum SetLayoutType {
         INIT,
         DRAG,
+        DRAG_ANIMATION,
         ANIMATION,
         UPDATE
     }
@@ -386,7 +387,7 @@ public class PictureComparatorRenderer implements Renderer {
         setCurrentProgress(progress, setLayoutType);
 
         // Not update the layout if dragging when dragging is not enabled
-        if (!(SetLayoutType.DRAG == setLayoutType && !draggingEnabled)) {
+        if (!((SetLayoutType.DRAG == setLayoutType || SetLayoutType.DRAG_ANIMATION == setLayoutType) && !draggingEnabled)) {
             evalPicPosition(progress);
             evalPicWidth(progress);
             evalPicClipping(w1, w2);
@@ -798,7 +799,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         // No set if animationType = AnimationType.NONE;
         if (AnimationType.AFTER_DRAG == animationType) {
-            setLayout(progress, SetLayoutType.DRAG);
+            setLayout(progress, SetLayoutType.DRAG_ANIMATION);
         } else if (AnimationType.AFTER_EVENT == animationType) {
             setLayout(progress, SetLayoutType.ANIMATION);
         }
