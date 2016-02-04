@@ -729,43 +729,49 @@ public class PictureComparatorRenderer implements Renderer {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        float alpha;
+
         // Background
-        if (null != backgroundFrame && null != colorShaderProgram) {
+        alpha = backgroundAlpha;
+        if (0f != alpha && null != backgroundFrame && null != colorShaderProgram) {
             positionAndScaleObject2DInScene(0f, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
             colorShaderProgram.setUniforms(modelProjectionMatrix,
                     (float) Color.red(backgroundColor) / 255,
                     (float) Color.green(backgroundColor) / 255,
                     (float) Color.blue(backgroundColor) / 255,
-                    backgroundAlpha);
+                    alpha);
             backgroundFrame.bindData(colorShaderProgram);
             backgroundFrame.draw();
         }
 
         // Picture 1
-        if (isPicture1Ready() && null != textureChoice1Program && null != glPictureChoice1) {
+        alpha = picturesAlpha * picturesVisibility;
+        if (0f != alpha && isPicture1Ready() && null != textureChoice1Program && null != glPictureChoice1) {
 
             glPictureChoice1.clipTexture(cw1, ch1);
             positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
             textureChoice1Program.useProgram();
-            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), picturesAlpha * picturesVisibility);
+            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), alpha);
             glPictureChoice1.bindData(textureChoice1Program);
             glPictureChoice1.draw();
         }
 
         // Picture 2
-        if (isPicture2Ready() && null != textureChoice2Program && null != glPictureChoice2) {
+        alpha = picturesAlpha * picturesVisibility;
+        if (0f != alpha && isPicture2Ready() && null != textureChoice2Program && null != glPictureChoice2) {
             glPictureChoice2.clipTexture(cw2, ch2);
             positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
             textureChoice2Program.useProgram();
-            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), picturesAlpha * picturesVisibility);
+            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), alpha);
             glPictureChoice2.bindData(textureChoice2Program);
             glPictureChoice2.draw();
         }
 
 
         // CenterLine
-        if (null != centerLine && null != colorShaderProgram) {
+        alpha = picturesAlpha * centerLineAlpha * picturesVisibility;
+        if (0f != alpha && null != centerLine && null != colorShaderProgram) {
             // http://stackoverflow.com/questions/11174991/android-opengl-es-1-0-alpha
             positionAndScaleObject2DInScene(centerX, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
@@ -773,27 +779,29 @@ public class PictureComparatorRenderer implements Renderer {
                     (float) Color.red(centerLineColor) / 255,
                     (float) Color.green(centerLineColor) / 255,
                     (float) Color.blue(centerLineColor) / 255,
-                    picturesAlpha * centerLineAlpha * picturesVisibility);
+                    alpha);
             centerLine.bindData(colorShaderProgram);
             centerLine.draw();
 
         }
 
         // MaskFrame
-        if (displayChoicesMaskFrame && null != choiceMaskFrame && null != colorShaderProgram) {
+        alpha = choiceMaskAlpha;
+        if (0f != alpha && displayChoicesMaskFrame && null != choiceMaskFrame && null != colorShaderProgram) {
             positionAndScaleObject2DInScene(0f, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
             colorShaderProgram.setUniforms(modelProjectionMatrix,
                     (float) Color.red(choiceMaskColor) / 255,
                     (float) Color.green(choiceMaskColor) / 255,
                     (float) Color.blue(choiceMaskColor) / 255,
-                    choiceMaskAlpha);
+                    alpha);
             choiceMaskFrame.bindData(colorShaderProgram);
             choiceMaskFrame.draw();
         }
 
         // ChoiceProgress
-        if (displayChoicesProgress) {
+        if (0f != alpha && displayChoicesProgress) {
+            alpha = choice1ProgressRectAlpha;
             if (null != choice1ProgressRect && null != colorShaderProgram) {
                 positionAndScaleObject2DInScene(pR1X, 0f, pR1Wf, pR1Hf);
                 colorShaderProgram.useProgram();
@@ -801,19 +809,20 @@ public class PictureComparatorRenderer implements Renderer {
                         (float) Color.red(choice1ProgressRectColor) / 255,
                         (float) Color.green(choice1ProgressRectColor) / 255,
                         (float) Color.blue(choice1ProgressRectColor) / 255,
-                        choice1ProgressRectAlpha);
+                        alpha);
                 choice1ProgressRect.bindData(colorShaderProgram);
                 choice1ProgressRect.draw();
             }
 
-            if (null != choice2ProgressRect && null != colorShaderProgram) {
+            alpha = choice2ProgressRectAlpha;
+            if (0f != alpha && null != choice2ProgressRect && null != colorShaderProgram) {
                 positionAndScaleObject2DInScene(pR2X, 0f, pR2Wf, pR2Hf);
                 colorShaderProgram.useProgram();
                 colorShaderProgram.setUniforms(modelProjectionMatrix,
                         (float) Color.red(choice2ProgressRectColor) / 255,
                         (float) Color.green(choice2ProgressRectColor) / 255,
                         (float) Color.blue(choice2ProgressRectColor) / 255,
-                        choice2ProgressRectAlpha);
+                        alpha);
                 choice2ProgressRect.bindData(colorShaderProgram);
                 choice2ProgressRect.draw();
             }
