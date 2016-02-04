@@ -147,6 +147,16 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         this.onSurfaceCreatedCallback = onSurfaceCreatedCallback;
     }
 
+    public void setOnTouchPressCallback(PictureComparatorRenderer.OnTouchPressCallback onTouchPressCallback) {
+        if (null != render)
+            render.setOnTouchPressCallback(onTouchPressCallback);
+    }
+
+    public void setOnTouchDragCallback(PictureComparatorRenderer.OnTouchDragCallback onTouchDragCallback) {
+        if (null != render)
+            render.setOnTouchDragCallback(onTouchDragCallback);
+    }
+
     public void setOnTouchUpCallback(PictureComparatorRenderer.OnTouchUpCallback onTouchUpCallback) {
         if (null != render)
             render.setOnTouchUpCallback(onTouchUpCallback);

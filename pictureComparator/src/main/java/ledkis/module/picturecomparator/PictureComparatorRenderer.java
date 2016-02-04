@@ -490,6 +490,14 @@ public class PictureComparatorRenderer implements Renderer {
         pR2X = MAX_NORMALIZED_DEVICE_X - pR2Wf * PROGRESS_RECT_WIDTH / 2;
     }
 
+    public void setOnTouchPressCallback(OnTouchPressCallback onTouchPressCallback) {
+        this.onTouchPressCallback = onTouchPressCallback;
+    }
+
+    public void setOnTouchDragCallback(OnTouchDragCallback onTouchDragCallback) {
+        this.onTouchDragCallback = onTouchDragCallback;
+    }
+
     public void setOnTouchUpCallback(OnTouchUpCallback onTouchUpCallback) {
         this.onTouchUpCallback = onTouchUpCallback;
     }
