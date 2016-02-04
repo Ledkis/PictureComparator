@@ -290,6 +290,12 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setBackgroundFrameAlpha(backgroundAlpha);
     }
 
+    public void setPicturesBrightness(float picturesBrightness) {
+        if (null != render)
+            render.setPicturesBrightness(picturesBrightness);
+    }
+
+
 
     public boolean isTransparent() {
         return transparent;

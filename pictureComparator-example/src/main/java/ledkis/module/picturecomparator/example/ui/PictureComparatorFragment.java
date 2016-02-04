@@ -153,6 +153,9 @@ public class PictureComparatorFragment extends Fragment {
 
             @Override
             public void onProgressChange(float progress, PictureComparatorRenderer.SetLayoutType setLayoutType) {
+
+                pictureComparatorLayout.updateProgressRectAttributes(progress);
+
                 float alpha = Utils.map(Math.abs(progress), 0f, 1f, 0f, 0.7f);
 
                 if (Constants.Layout.ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
@@ -161,13 +164,14 @@ public class PictureComparatorFragment extends Fragment {
                     pictureComparatorLayout.setChoiceMaskColor(Color.GREEN);
                 }
 
-                pictureComparatorLayout.setChoiceMaskAlpha(alpha);
+                pictureComparatorLayout.setChoiceMaskColor(Color.BLACK);
 
-                pictureComparatorLayout.updateProgressRectAttributes(progress);
+                pictureComparatorLayout.setPicturesAlpha(1f);
+//                pictureComparatorLayout.setChoiceMaskAlpha(alpha);
 
-                pictureComparatorLayout.setBackgroundFrameAlpha(1f);
-                pictureComparatorLayout.setCenterLineAlpha(1f);
-                pictureComparatorLayout.setPicturesAlpha(alpha);
+                pictureComparatorLayout.setPicturesBrightness(progress);
+
+//                pictureComparatorLayout.setBackgroundFrameAlpha(1f);
             }
         });
 

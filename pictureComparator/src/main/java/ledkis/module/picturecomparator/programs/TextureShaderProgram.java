@@ -17,7 +17,8 @@ public class TextureShaderProgram extends ShaderProgram {
     private final int uMatrixLocation;
     private final int uTextureUnitLocation;
     private final int uAlphaLocation;
-    
+    private final int uBrightnessLocation;
+
     // Attribute locations
     private final int aPositionLocation;
     private final int aTextureCoordinatesLocation;
@@ -38,10 +39,12 @@ public class TextureShaderProgram extends ShaderProgram {
                     "uniform sampler2D u_TextureUnit;\n" +
                     "varying vec2 v_TextureCoordinates;\n" +
                     "uniform float u_Alpha;\n" +
+                    "uniform float u_Brightness;\n" +
                     "\n" +
                     "void main(){\n" +
                     "vec4 v4Colour = texture2D(u_TextureUnit, v_TextureCoordinates);\n" +
                     "v4Colour.a = u_Alpha;\n" +
+                    "v4Colour.rgb += u_Brightness;\n" +
                     "gl_FragColor = v4Colour;\n" +
                     "}";
 
@@ -53,16 +56,19 @@ public class TextureShaderProgram extends ShaderProgram {
         uTextureUnitLocation = glGetUniformLocation(program, U_TEXTURE_UNIT);
 
         uAlphaLocation = glGetUniformLocation(program, U_ALPHA);
-        
+
+        uBrightnessLocation = glGetUniformLocation(program, U_BRIGHTNESS);
+
         // Retrieve attribute locations for the shader program.
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
         aTextureCoordinatesLocation = glGetAttribLocation(program, A_TEXTURE_COORDINATES);
     }
 
-    public void setUniforms(float[] matrix, int textureId, float alpha) {
+    public void setUniforms(float[] matrix, int textureId, float alpha, float brightness) {
         // Pass the matrix into the shader program.
         glUniformMatrix4fv(uMatrixLocation, 1, false, matrix, 0);
         glUniform1f(uAlphaLocation, alpha);
+        glUniform1f(uBrightnessLocation, brightness);
 
         // Set the active texture unit to texture unit 0.
         glActiveTexture(GL_TEXTURE0);
@@ -74,7 +80,7 @@ public class TextureShaderProgram extends ShaderProgram {
         // telling it to read from texture unit 0.
         glUniform1i(uTextureUnitLocation, 0);
     }
-    
+
     public int getPositionAttributeLocation() {
         return aPositionLocation;
     }
