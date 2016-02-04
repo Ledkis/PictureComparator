@@ -806,9 +806,9 @@ public class PictureComparatorRenderer implements Renderer {
         }
 
         // ChoiceProgress
-        if (0f != alpha && displayChoicesProgress) {
+        if (displayChoicesProgress) {
             alpha = choice1ProgressRectAlpha;
-            if (null != choice1ProgressRect && null != colorShaderProgram) {
+            if (0f != alpha && null != choice1ProgressRect && null != colorShaderProgram) {
                 positionAndScaleObject2DInScene(pR1X, 0f, pR1Wf, pR1Hf);
                 colorShaderProgram.useProgram();
                 colorShaderProgram.setUniforms(modelProjectionMatrix,
