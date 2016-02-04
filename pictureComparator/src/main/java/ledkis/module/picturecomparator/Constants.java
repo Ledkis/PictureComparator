@@ -61,7 +61,7 @@ public class Constants {
 
         // Progress Rect
 
-        public static final float PROGRESS_RECT_WIDTH = 0.12f;
+        public static final float PROGRESS_RECT_WIDTH = 0.13f;
         public static final float PROGRESS_RECT_HEIGHT = NORMALIZED_DEVICE_MAX_HEIGHT;
         public static final float PROGRESS_RECT_HEIGHT_CENTER_FACTOR = 0.1f;
         public static final float PROGRESS_RECT_WIDTH_MIN_FACTOR = 0.3f;

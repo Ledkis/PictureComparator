@@ -150,9 +150,9 @@ public class PictureComparatorFragment extends Fragment {
         pictureComparatorLayout.setChoice2ProgressRectColor(Color.GREEN);
 
         pictureComparatorLayout.setOnProgressChangeCallback(new PictureComparatorRenderer.OnProgressChangeCallback() {
-            @Override
-            public void onProgressChange(float progress) {
 
+            @Override
+            public void onProgressChange(float progress, PictureComparatorRenderer.SetLayoutType setLayoutType) {
                 float alpha = Utils.map(Math.abs(progress), 0f, 1f, 0f, 0.7f);
 
                 if (Constants.Layout.ANSWER_CHOICE_1 == Utils.getAnswerChoice(progress)) {
@@ -166,26 +166,25 @@ public class PictureComparatorFragment extends Fragment {
                 pictureComparatorLayout.updateProgressRectAttributes(progress);
 
                 pictureComparatorLayout.setPicturesAlpha(alpha);
-
             }
         });
 
         pictureComparatorLayout.setOnProgressRectClickCallback(new PictureComparatorRenderer.OnProgressRectClickCallback() {
             @Override
             public void onProgressRect1Click() {
-                pictureComparatorLayout.openChoice1Animation();
+                pictureComparatorLayout.openChoice1Animation(PictureComparatorRenderer.AnimationType.AFTER_EVENT);
             }
 
             @Override
             public void onProgressRect2Click() {
-                pictureComparatorLayout.openChoice2Animation();
+                pictureComparatorLayout.openChoice2Animation(PictureComparatorRenderer.AnimationType.AFTER_EVENT);
             }
         });
 
         leftButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View v) {
-                                              pictureComparatorLayout.openChoice1Animation();
+                                              pictureComparatorLayout.openChoice1Animation(PictureComparatorRenderer.AnimationType.AFTER_EVENT);
                                           }
                                       }
 
@@ -194,7 +193,7 @@ public class PictureComparatorFragment extends Fragment {
         rightButton.setOnClickListener(new View.OnClickListener() {
                                            @Override
                                            public void onClick(View v) {
-                                               pictureComparatorLayout.openChoice2Animation();
+                                               pictureComparatorLayout.openChoice2Animation(PictureComparatorRenderer.AnimationType.AFTER_EVENT);
                                            }
                                        }
 

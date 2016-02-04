@@ -147,9 +147,9 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         this.onSurfaceCreatedCallback = onSurfaceCreatedCallback;
     }
 
-    public void setOnTouchCallback(PictureComparatorRenderer.OnTouchCallback onTouchCallback) {
+    public void setOnTouchUpCallback(PictureComparatorRenderer.OnTouchUpCallback onTouchUpCallback) {
         if (null != render)
-            render.setOnTouchCallback(onTouchCallback);
+            render.setOnTouchUpCallback(onTouchUpCallback);
     }
 
     public void setOnProgressChangeCallback(PictureComparatorRenderer.OnProgressChangeCallback onProgressChangeCallback) {
@@ -170,6 +170,11 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
     public void setOnProgressRectClickCallback(PictureComparatorRenderer.OnProgressRectClickCallback onProgressRectClickCallback) {
         if (null != render)
             render.setOnProgressRectClickCallback(onProgressRectClickCallback);
+    }
+
+    public void setOnProgressEndCallback(PictureComparatorRenderer.OnProgressEndCallback onProgressEndCallback) {
+        if (null != render)
+            render.setOnProgressEndCallback(onProgressEndCallback);
     }
 
     public float getCurrentProgress() {
@@ -255,6 +260,12 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setFadeTime(fadeTime);
     }
 
+    public void setDraggingEnabled(boolean draggingEnabled) {
+        if (null != render)
+            render.setDraggingEnabled(draggingEnabled);
+    }
+
+
     public boolean isTransparent() {
         return transparent;
     }
@@ -323,27 +334,27 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
         return rendererSet;
     }
 
-    public void openChoice1Animation() {
+    public void openChoice1Animation(PictureComparatorRenderer.AnimationType animationType) {
         if (null != render)
-            render.openChoice1Animation();
+            render.openChoice1Animation(animationType);
     }
 
-    public void openChoice2Animation() {
+    public void openChoice2Animation(PictureComparatorRenderer.AnimationType animationType) {
         if (null != render)
-            render.openChoice2Animation();
+            render.openChoice2Animation(animationType);
     }
 
-    public void closeAnimation() {
+    public void closeAnimation(PictureComparatorRenderer.AnimationType animationType) {
         if (null != render)
-            render.closeAnimation();
+            render.closeAnimation(animationType);
     }
 
     public void updateLayout() {
         render.updateLayout();
     }
 
-    public void setLayout(float progress) {
-        render.setLayout(progress);
+    public void setLayout(float progress, PictureComparatorRenderer.SetLayoutType setLayoutType) {
+        render.setLayout(progress, setLayoutType);
     }
 
     public void setGlPictureChoices(GlPictureChoice glPictureChoice1, GlPictureChoice glPictureChoice2) {

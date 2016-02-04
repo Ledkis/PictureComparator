@@ -65,14 +65,16 @@ public class PictureComparatorRenderer implements Renderer {
 
     public static final String TAG = "PictureComparatorRenderer";
 
-    public interface OnTouchCallback {
-
+    public interface OnTouchPressCallback {
         void onTouchPress(float normalizedX, float normalizedY);
+    }
 
+    public interface OnTouchDragCallback {
         void onTouchDrag(float normalizedX, float normalizedY);
+    }
 
+    public interface OnTouchUpCallback {
         void onTouchUp(float normalizedX, float normalizedY);
-
     }
 
     public interface OnSurfaceCreatedCallback {
@@ -80,7 +82,11 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     public interface OnProgressChangeCallback {
-        void onProgressChange(float progress);
+        void onProgressChange(float progress, SetLayoutType setLayoutType);
+    }
+
+    public interface OnProgressEndCallback {
+        void onProgressEnd(float progress);
     }
 
     public interface OnPicturesStateChangeCallback {
@@ -108,6 +114,19 @@ public class PictureComparatorRenderer implements Renderer {
         CHOICE_1,
         CHOICE_2,
         CENTER,
+    }
+
+    public enum SetLayoutType {
+        INIT,
+        DRAG,
+        ANIMATION,
+        UPDATE
+    }
+
+    public enum AnimationType {
+        NONE,
+        AFTER_DRAG,
+        AFTER_EVENT
     }
 
     private final Context context;
@@ -165,12 +184,15 @@ public class PictureComparatorRenderer implements Renderer {
     private float pR1X, pR1Wf, pR1Hf; // progressRect1X, WidthFactor, HeightFactor
     private float pR2X, pR2Wf, pR2Hf;
 
-    private OnTouchCallback onTouchCallback;
+    private OnTouchPressCallback onTouchPressCallback;
+    private OnTouchDragCallback onTouchDragCallback;
+    private OnTouchUpCallback onTouchUpCallback;
     private OnSurfaceCreatedCallback onSurfaceCreatedCallback;
     private OnProgressChangeCallback onProgressChangeCallback;
     private OnPicturesStateChangeCallback onPicturesStateChangeCallback;
     private OnDisplayStateChangeCallback onDisplayStateChangeCallback;
     private OnProgressRectClickCallback onProgressRectClickCallback;
+    private OnProgressEndCallback onProgressEndCallback;
 
     private GLSurfaceView glSurfaceView;
 
@@ -179,6 +201,7 @@ public class PictureComparatorRenderer implements Renderer {
     private long animationStartTime;
     private float finalValue;
     private float releaseProgress;
+    private AnimationType animationType;
 
     private Interpolator interpolator;
 
@@ -188,6 +211,7 @@ public class PictureComparatorRenderer implements Renderer {
     private DisplayState displayState;
 
     private boolean linkProgressAndPictureState;
+    private boolean draggingEnabled;
 
     public PictureComparatorRenderer(Context context, GLSurfaceView glSurfaceView) {
         this.context = context;
@@ -197,6 +221,8 @@ public class PictureComparatorRenderer implements Renderer {
         threshold = DEFAULT_CHOICE_THRESHOLD;
 
         this.animate = true;
+        this.onAnimation = false;
+        this.animationType = AnimationType.NONE;
 
         interpolator = new CubicBezierInterpolator(X0, Y0, X1, Y1);
 
@@ -219,6 +245,7 @@ public class PictureComparatorRenderer implements Renderer {
         displayState = DisplayState.CENTER;
 
         linkProgressAndPictureState = true;
+        draggingEnabled = true;
 
 //        layoutRatio = 1.7777778f;
 
@@ -229,8 +256,8 @@ public class PictureComparatorRenderer implements Renderer {
 
         onAnimation = false;
 
-        if (null != onTouchCallback)
-            onTouchCallback.onTouchPress(normalizedX, normalizedY);
+        if (null != onTouchPressCallback)
+            onTouchPressCallback.onTouchPress(normalizedX, normalizedY);
     }
 
     public void handleTouchDrag(float normalizedX, float normalizedY) {
@@ -240,10 +267,10 @@ public class PictureComparatorRenderer implements Renderer {
 
         onAnimation = false;
 
-        setLayout(progress);
+        setLayout(progress, SetLayoutType.DRAG);
 
-        if (null != onTouchCallback)
-            onTouchCallback.onTouchDrag(normalizedX, normalizedY);
+        if (null != onTouchDragCallback)
+            onTouchDragCallback.onTouchDrag(normalizedX, normalizedY);
     }
 
     public void handleTouchUp(float normalizedX, float normalizedY) {
@@ -253,7 +280,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         releaseAnimation(progress);
 
-        setLayout(progress);
+        setLayout(progress, SetLayoutType.DRAG);
 
         if (displayChoicesProgress) {
 
@@ -281,15 +308,15 @@ public class PictureComparatorRenderer implements Renderer {
             }
         }
 
-        if (null != onTouchCallback)
-            onTouchCallback.onTouchUp(normalizedX, normalizedY);
+        if (null != onTouchUpCallback)
+            onTouchUpCallback.onTouchUp(normalizedX, normalizedY);
 
     }
 
-    private void setCurrentProgress(float progress) {
+    private void setCurrentProgress(float progress, SetLayoutType setLayoutType) {
         currentProgress = progress;
         if (null != onProgressChangeCallback)
-            onProgressChangeCallback.onProgressChange(currentProgress);
+            onProgressChangeCallback.onProgressChange(currentProgress, setLayoutType);
     }
 
     public void updateState() {
@@ -318,10 +345,10 @@ public class PictureComparatorRenderer implements Renderer {
     }
 
     public void updateLayout() {
-        setLayout(currentProgress);
+        setLayout(currentProgress, SetLayoutType.UPDATE);
     }
 
-    public void setLayout(float progress) {
+    public void setLayout(float progress, SetLayoutType setLayoutType) {
 
         updateState();
 
@@ -354,11 +381,14 @@ public class PictureComparatorRenderer implements Renderer {
 
         }
 
-        setCurrentProgress(progress);
+        setCurrentProgress(progress, setLayoutType);
 
-        evalPicPosition(progress);
-        evalPicWidth(progress);
-        evalPicClipping(w1, w2);
+        // Not update the layout if dragging when dragging is not enabled
+        if (!(SetLayoutType.DRAG == setLayoutType && !draggingEnabled)) {
+            evalPicPosition(progress);
+            evalPicWidth(progress);
+            evalPicClipping(w1, w2);
+        }
     }
 
     private void evalPicPosition(float progress) {
@@ -458,8 +488,8 @@ public class PictureComparatorRenderer implements Renderer {
         pR2X = MAX_NORMALIZED_DEVICE_X - pR2Wf * PROGRESS_RECT_WIDTH / 2;
     }
 
-    public void setOnTouchCallback(OnTouchCallback onTouchCallback) {
-        this.onTouchCallback = onTouchCallback;
+    public void setOnTouchUpCallback(OnTouchUpCallback onTouchUpCallback) {
+        this.onTouchUpCallback = onTouchUpCallback;
     }
 
     public void setOnSurfaceCreatedCallback(OnSurfaceCreatedCallback onSurfaceCreatedCallback) {
@@ -480,6 +510,10 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void setOnProgressRectClickCallback(OnProgressRectClickCallback onProgressRectClickCallback) {
         this.onProgressRectClickCallback = onProgressRectClickCallback;
+    }
+
+    public void setOnProgressEndCallback(OnProgressEndCallback onProgressEndCallback) {
+        this.onProgressEndCallback = onProgressEndCallback;
     }
 
     public void setGlPictureChoice1(GlPictureChoice glPictureChoice1) {
@@ -562,6 +596,11 @@ public class PictureComparatorRenderer implements Renderer {
         this.fadeTime = fadeTime;
     }
 
+    public void setDraggingEnabled(boolean draggingEnabled) {
+        this.draggingEnabled = draggingEnabled;
+    }
+
+
     public boolean isLinkProgressAndPictureState() {
         return linkProgressAndPictureState;
     }
@@ -613,7 +652,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         layoutRatio = (float) glSurfaceView.getHeight() / (float) glSurfaceView.getWidth();
 
-        setLayout(PROGRESS_CENTER_VALUE);
+        setLayout(PROGRESS_CENTER_VALUE, SetLayoutType.INIT);
 
         textureChoice1Program = new TextureShaderProgram(context);
         textureChoice2Program = new TextureShaderProgram(context);
@@ -649,7 +688,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         // ReleaseAnimation & change texture
         if (animate && onAnimation) {
-            onAnimation();
+            onAnimation(animationType);
         } else {
             updateTextures();
         }
@@ -736,17 +775,25 @@ public class PictureComparatorRenderer implements Renderer {
 
     }
 
-    private void onAnimation() {
+    private void onAnimation(AnimationType animationType) {
         long t = System.currentTimeMillis() - animationStartTime;
 
         float nt = interpolator.getInterpolation(Utils.map(t, 0f, fadeTime, 0f, 1f));
 
         float progress = Utils.map(nt, 0f, 1f, releaseProgress, finalValue);
 
-        setLayout(progress);
+        // No set if animationType = AnimationType.NONE;
+        if (AnimationType.AFTER_DRAG == animationType) {
+            setLayout(progress, SetLayoutType.DRAG);
+        } else if (AnimationType.AFTER_EVENT == animationType) {
+            setLayout(progress, SetLayoutType.ANIMATION);
+        }
 
         if (t > fadeTime) {
             onAnimation = false;
+            this.animationType = AnimationType.NONE;
+            if (null != onProgressEndCallback)
+                onProgressEndCallback.onProgressEnd(currentProgress);
         }
     }
 
@@ -762,16 +809,17 @@ public class PictureComparatorRenderer implements Renderer {
     private void releaseAnimation(float progress) {
         finalValue = Utils.getFinalThresholdValue(progress, threshold);
         if (CHOICE_1_FINAL_PROGRESS_VALUE == finalValue) {
-            openChoice1Animation();
+            openChoice1Animation(AnimationType.AFTER_DRAG);
         } else if (CHOICE_2_FINAL_PROGRESS_VALUE == finalValue) {
-            openChoice2Animation();
+            openChoice2Animation(AnimationType.AFTER_DRAG);
         } else {
-            closeAnimation();
+            closeAnimation(AnimationType.AFTER_DRAG);
         }
     }
 
-    public void openChoice1Animation() {
+    public void openChoice1Animation(AnimationType animationType) {
         onAnimation = true;
+        this.animationType = animationType;
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = CHOICE_1_FINAL_PROGRESS_VALUE;
@@ -781,8 +829,9 @@ public class PictureComparatorRenderer implements Renderer {
         }
     }
 
-    public void openChoice2Animation() {
+    public void openChoice2Animation(AnimationType animationType) {
         onAnimation = true;
+        this.animationType = animationType;
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = CHOICE_2_FINAL_PROGRESS_VALUE;
@@ -792,8 +841,9 @@ public class PictureComparatorRenderer implements Renderer {
         }
     }
 
-    public void closeAnimation() {
+    public void closeAnimation(AnimationType animationType) {
         onAnimation = true;
+        this.animationType = animationType;
         animationStartTime = System.currentTimeMillis();
         releaseProgress = currentProgress;
         finalValue = PROGRESS_CENTER_VALUE;
