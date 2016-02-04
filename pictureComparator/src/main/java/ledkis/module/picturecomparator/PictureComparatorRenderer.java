@@ -179,7 +179,8 @@ public class PictureComparatorRenderer implements Renderer {
     private boolean displayChoicesProgress;
     private int choice1ProgressRectColor;
     private int choice2ProgressRectColor;
-    private float choicesProgressRectAlpha;
+    private float choice1ProgressRectAlpha;
+    private float choice2ProgressRectAlpha;
 
     private float pR1X, pR1Wf, pR1Hf; // progressRect1X, WidthFactor, HeightFactor
     private float pR2X, pR2Wf, pR2Hf;
@@ -240,7 +241,8 @@ public class PictureComparatorRenderer implements Renderer {
         displayChoicesProgress = false;
         choice1ProgressRectColor = Color.WHITE;
         choice2ProgressRectColor = Color.WHITE;
-        choicesProgressRectAlpha = 1f;
+        choice1ProgressRectAlpha = 1f;
+        choice2ProgressRectAlpha = 1f;
 
         displayState = DisplayState.CENTER;
 
@@ -580,8 +582,12 @@ public class PictureComparatorRenderer implements Renderer {
         this.picturesAlpha = picturesAlpha;
     }
 
-    public void setChoicesProgressRectAlpha(float choicesProgressRectAlpha) {
-        this.choicesProgressRectAlpha = choicesProgressRectAlpha;
+    public void setChoice1ProgressRectAlpha(float choice1ProgressRectAlpha) {
+        this.choice1ProgressRectAlpha = choice1ProgressRectAlpha;
+    }
+
+    public void setChoice2ProgressRectAlpha(float choice2ProgressRectAlpha) {
+        this.choice2ProgressRectAlpha = choice2ProgressRectAlpha;
     }
 
     public void setLinkProgressAndPictureState(boolean linkProgressAndPictureState) {
@@ -753,7 +759,7 @@ public class PictureComparatorRenderer implements Renderer {
                         (float) Color.red(choice1ProgressRectColor) / 255,
                         (float) Color.green(choice1ProgressRectColor) / 255,
                         (float) Color.blue(choice1ProgressRectColor) / 255,
-                        choicesProgressRectAlpha);
+                        choice1ProgressRectAlpha);
                 choice1ProgressRect.bindData(colorShaderProgram);
                 choice1ProgressRect.draw();
             }
@@ -765,7 +771,7 @@ public class PictureComparatorRenderer implements Renderer {
                         (float) Color.red(choice2ProgressRectColor) / 255,
                         (float) Color.green(choice2ProgressRectColor) / 255,
                         (float) Color.blue(choice2ProgressRectColor) / 255,
-                        choicesProgressRectAlpha);
+                        choice2ProgressRectAlpha);
                 choice2ProgressRect.bindData(colorShaderProgram);
                 choice2ProgressRect.draw();
             }

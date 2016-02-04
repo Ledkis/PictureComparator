@@ -240,9 +240,14 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setPicturesAlpha(picturesAlpha);
     }
 
-    public void setChoicesProgressRectAlpha(float choicesProgressRectAlpha) {
+    public void setChoice1ProgressRectAlpha(float choice1ProgressRectAlpha) {
         if (null != render)
-            render.setChoicesProgressRectAlpha(choicesProgressRectAlpha);
+            render.setChoice1ProgressRectAlpha(choice1ProgressRectAlpha);
+    }
+
+    public void setChoice2ProgressRectAlpha(float choice2ProgressRectAlpha) {
+        if (null != render)
+            render.setChoice2ProgressRectAlpha(choice2ProgressRectAlpha);
     }
 
     public void setLinkProgressAndPictureState(boolean linkProgressAndPictureState) {
