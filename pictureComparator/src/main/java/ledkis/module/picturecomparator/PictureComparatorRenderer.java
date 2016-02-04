@@ -695,15 +695,15 @@ public class PictureComparatorRenderer implements Renderer {
         textureChoice2Program = new TextureShaderProgram(context);
         colorShaderProgram = new ColorShaderProgram(context);
 
-        if (null != onSurfaceCreatedCallback)
-            onSurfaceCreatedCallback.onSurfaceCreated();
-
         backgroundFrame = new Rect2DFrame(NORMALIZED_DEVICE_MAX_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
 
         choiceMaskFrame = new Rect2DFrame(NORMALIZED_DEVICE_MAX_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
 
         choice1ProgressRect = new Rect2DFrame(PROGRESS_RECT_WIDTH, PROGRESS_RECT_HEIGHT);
         choice2ProgressRect = new Rect2DFrame(PROGRESS_RECT_WIDTH, PROGRESS_RECT_HEIGHT);
+
+        if (null != onSurfaceCreatedCallback)
+            onSurfaceCreatedCallback.onSurfaceCreated();
 
         Utils.v(TAG, "onSurfaceCreated, layoutRatio: " + layoutRatio);
     }
