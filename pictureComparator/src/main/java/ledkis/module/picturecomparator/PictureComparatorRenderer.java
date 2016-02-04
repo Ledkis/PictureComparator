@@ -752,12 +752,10 @@ public class PictureComparatorRenderer implements Renderer {
 
     private void updateTextures() {
 
-        if (linkProgressAndPictureState) {
-            boolean texture1Changed = null != glPictureChoice1 && glPictureChoice1.updateBitmap(context, layoutRatio);
-            boolean texture2Changed = null != glPictureChoice2 && glPictureChoice2.updateBitmap(context, layoutRatio);
-            if (texture1Changed || texture2Changed)
-                updateLayout();
-        }
+        boolean texture1Changed = null != glPictureChoice1 && glPictureChoice1.updateBitmap(context, layoutRatio);
+        boolean texture2Changed = null != glPictureChoice2 && glPictureChoice2.updateBitmap(context, layoutRatio);
+        if (texture1Changed || texture2Changed)
+            updateLayout();
 
     }
 
