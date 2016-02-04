@@ -136,6 +136,8 @@ public class PictureComparatorRenderer implements Renderer {
     private final float[] modelMatrix = new float[16];
     private final float[] modelProjectionMatrix = new float[16];
 
+    private Rect2DFrame backgroundFrame;
+
     private Rect2DFrame choiceMaskFrame;
     private Rect2DFrame centerLine;
 
@@ -154,7 +156,6 @@ public class PictureComparatorRenderer implements Renderer {
     private float threshold;
 
     private float currentProgress;
-    private float touchProgress;
     private float lastNormalizedX;
 
     private float layoutRatio;
@@ -169,6 +170,9 @@ public class PictureComparatorRenderer implements Renderer {
 
     private float picturesVisibility;
     private float picturesAlpha;
+
+    private int backgroundColor;
+    private float backgroundAlpha;
 
     private int centerLineColor;
     private float centerLineAlpha;
@@ -231,6 +235,9 @@ public class PictureComparatorRenderer implements Renderer {
         picturesVisibility = PICTURES_VISIBLE;
 
         picturesAlpha = 1f;
+
+        backgroundColor = Color.BLACK;
+        backgroundAlpha = 0f;
 
         centerLineColor = Color.WHITE;
         centerLineAlpha = 1f;
@@ -636,6 +643,14 @@ public class PictureComparatorRenderer implements Renderer {
         return picturesAlpha;
     }
 
+    public void setBackgroundFrameColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public void setBackgroundFrameAlpha(float backgroundAlpha) {
+        this.backgroundAlpha = backgroundAlpha;
+    }
+
     public void swapeTextures() {
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
@@ -676,6 +691,8 @@ public class PictureComparatorRenderer implements Renderer {
         if (null != onSurfaceCreatedCallback)
             onSurfaceCreatedCallback.onSurfaceCreated();
 
+        backgroundFrame = new Rect2DFrame(NORMALIZED_DEVICE_MAX_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
+
         choiceMaskFrame = new Rect2DFrame(NORMALIZED_DEVICE_MAX_WIDTH, NORMALIZED_DEVICE_MAX_HEIGHT);
 
         choice1ProgressRect = new Rect2DFrame(PROGRESS_RECT_WIDTH, PROGRESS_RECT_HEIGHT);
@@ -710,6 +727,19 @@ public class PictureComparatorRenderer implements Renderer {
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Background
+        if (null != backgroundFrame && null != colorShaderProgram) {
+            positionAndScaleObject2DInScene(0f, 0f, 1f, 1f);
+            colorShaderProgram.useProgram();
+            colorShaderProgram.setUniforms(modelProjectionMatrix,
+                    (float) Color.red(backgroundColor) / 255,
+                    (float) Color.green(backgroundColor) / 255,
+                    (float) Color.blue(backgroundColor) / 255,
+                    backgroundAlpha);
+            backgroundFrame.bindData(colorShaderProgram);
+            backgroundFrame.draw();
+        }
 
         // Picture 1
         if (isPicture1Ready() && null != textureChoice1Program && null != glPictureChoice1) {
@@ -748,6 +778,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         }
 
+        // MaskFrame
         if (displayChoicesMaskFrame && null != choiceMaskFrame && null != colorShaderProgram) {
             positionAndScaleObject2DInScene(0f, 0f, 1f, 1f);
             colorShaderProgram.useProgram();
@@ -760,6 +791,7 @@ public class PictureComparatorRenderer implements Renderer {
             choiceMaskFrame.draw();
         }
 
+        // ChoiceProgress
         if (displayChoicesProgress) {
             if (null != choice1ProgressRect && null != colorShaderProgram) {
                 positionAndScaleObject2DInScene(pR1X, 0f, pR1Wf, pR1Hf);

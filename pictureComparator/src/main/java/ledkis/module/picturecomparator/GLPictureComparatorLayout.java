@@ -280,6 +280,16 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setDraggingEnabled(draggingEnabled);
     }
 
+    public void setBackgroundFrameColor(int backgroundColor) {
+        if (null != render)
+            render.setBackgroundFrameColor(backgroundColor);
+    }
+
+    public void setBackgroundFrameAlpha(float backgroundAlpha) {
+        if (null != render)
+            render.setBackgroundFrameAlpha(backgroundAlpha);
+    }
+
 
     public boolean isTransparent() {
         return transparent;
