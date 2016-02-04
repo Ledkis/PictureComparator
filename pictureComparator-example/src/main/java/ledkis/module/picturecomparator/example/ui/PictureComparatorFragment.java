@@ -264,7 +264,7 @@ public class PictureComparatorFragment extends Fragment {
         bottomRightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pictureComparatorLayout.setPicturesVisibility(bottomRightButtonFlag ? View.VISIBLE : View.INVISIBLE);
+                pictureComparatorLayout.setPicturesVisibility(bottomRightButtonFlag);
                 bottomRightButtonFlag = !bottomRightButtonFlag;
 
             }

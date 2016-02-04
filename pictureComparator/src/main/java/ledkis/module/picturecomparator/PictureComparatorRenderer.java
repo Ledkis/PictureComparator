@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
-import android.view.View;
 import android.view.animation.Interpolator;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -535,14 +534,11 @@ public class PictureComparatorRenderer implements Renderer {
         this.choice2ProgressRectColor = choice2ProgressRectColor;
     }
 
-    public void setPicturesVisibility(int visibility) {
-        if (View.VISIBLE == visibility) {
+    public void setPicturesVisibility(boolean isVisible) {
+        if (isVisible) {
             picturesVisibility = PICTURES_VISIBLE;
-        } else if (View.INVISIBLE == visibility || View.GONE == visibility) {
-            // TODO optim GONE
-            picturesVisibility = PICTURES_INVISIBLE;
         } else {
-            picturesVisibility = PICTURES_VISIBLE;
+            picturesVisibility = PICTURES_INVISIBLE;
         }
     }
 
@@ -564,6 +560,26 @@ public class PictureComparatorRenderer implements Renderer {
 
     public void setFadeTime(float fadeTime) {
         this.fadeTime = fadeTime;
+    }
+
+    public boolean isLinkProgressAndPictureState() {
+        return linkProgressAndPictureState;
+    }
+
+    public boolean isDisplayChoicesMaskFrame() {
+        return displayChoicesMaskFrame;
+    }
+
+    public boolean isDisplayChoicesProgress() {
+        return displayChoicesProgress;
+    }
+
+    public float getPicturesVisibility() {
+        return picturesVisibility;
+    }
+
+    public float getPicturesAlpha() {
+        return picturesAlpha;
     }
 
     public void swapeTextures() {

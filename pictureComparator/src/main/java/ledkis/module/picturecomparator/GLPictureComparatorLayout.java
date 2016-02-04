@@ -24,6 +24,7 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
      */
     private PictureComparatorRenderer render;
     private boolean rendererSet = false;
+    private boolean transparent;
 
 
     private PictureComparatorRenderer.OnSurfaceCreatedCallback onSurfaceCreatedCallback;
@@ -84,7 +85,9 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
     }
 
     public void init(boolean transparent) {
-        setZOrderOnTop(transparent);
+        this.transparent = transparent;
+        setZOrderOnTop(this.transparent);
+        Utils.v(TAG, "Init, transparent: " + this.transparent);
     }
 
     public void initTouchControl() {
@@ -222,9 +225,9 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setChoice2ProgressRectColor(choice2ProgressRectColor);
     }
 
-    public void setPicturesVisibility(int visibility) {
+    public void setPicturesVisibility(boolean isVisible) {
         if (null != render)
-            render.setPicturesVisibility(visibility);
+            render.setPicturesVisibility(isVisible);
     }
 
     public void setPicturesAlpha(float picturesAlpha) {
@@ -252,6 +255,30 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setFadeTime(fadeTime);
     }
 
+    public boolean isTransparent() {
+        return transparent;
+    }
+
+    public boolean isLinkProgressAndPictureState() {
+        return render.isLinkProgressAndPictureState();
+    }
+
+    public boolean isDisplayChoicesMaskFrame() {
+        return render.isDisplayChoicesMaskFrame();
+    }
+
+    public boolean isDisplayChoicesProgress() {
+        return render.isDisplayChoicesProgress();
+    }
+
+    public float getPicturesVisibility() {
+        return render.getPicturesVisibility();
+    }
+
+    public float getPicturesAlpha() {
+        return render.getPicturesAlpha();
+    }
+
 
     public boolean supportsEs2() {
         // Check if the system supports OpenGL ES 2.0.
@@ -274,7 +301,7 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
                 || Build.MODEL.contains("Android SDK built for x86")));
     }
 
-    public void swapeTextures(){
+    public void swapeTextures() {
         render.swapeTextures();
     }
 
