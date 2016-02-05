@@ -13,6 +13,7 @@ abstract class ShaderProgram {
     protected static final String U_COLOR = "u_Color";
     protected static final String U_ALPHA = "u_Alpha";
     protected static final String U_BRIGHTNESS = "u_Brightness";
+    protected static final String U_CONTRAST = "u_Contrast";
     protected static final String U_TEXTURE_UNIT = "u_TextureUnit";
 
     // Attribute constants

@@ -295,6 +295,10 @@ public class GLPictureComparatorLayout extends GLSurfaceView {
             render.setPicturesBrightness(picturesBrightness);
     }
 
+    public void setPicturesContrast(float picturesContrast) {
+        if (null != render)
+            render.setPicturesContrast(picturesContrast);
+    }
 
 
     public boolean isTransparent() {

@@ -172,6 +172,7 @@ public class PictureComparatorRenderer implements Renderer {
     private float picturesVisibility;
     private float picturesAlpha;
     private float picturesBrightness;
+    private float picturesContrast;
 
     private int backgroundColor;
     private float backgroundAlpha;
@@ -238,6 +239,7 @@ public class PictureComparatorRenderer implements Renderer {
 
         picturesAlpha = 1f;
         picturesBrightness = 0f;
+        picturesContrast = 1f;
 
         backgroundColor = Color.BLACK;
         backgroundAlpha = 0f;
@@ -658,6 +660,10 @@ public class PictureComparatorRenderer implements Renderer {
         this.picturesBrightness = picturesBrightness;
     }
 
+    public void setPicturesContrast(float picturesContrast) {
+        this.picturesContrast = picturesContrast;
+    }
+
     public void swapeTextures() {
         // TODO moche
         if (isPicture1Ready() && isPicture2Ready()) {
@@ -758,7 +764,7 @@ public class PictureComparatorRenderer implements Renderer {
             glPictureChoice1.clipTexture(cw1, ch1);
             positionAndScaleObject2DInScene(x1, 0f, wf1, 1f);
             textureChoice1Program.useProgram();
-            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), alpha, picturesBrightness);
+            textureChoice1Program.setUniforms(modelProjectionMatrix, glPictureChoice1.getTextureId(), alpha, picturesBrightness, picturesContrast);
             glPictureChoice1.bindData(textureChoice1Program);
             glPictureChoice1.draw();
         }
@@ -769,7 +775,7 @@ public class PictureComparatorRenderer implements Renderer {
             glPictureChoice2.clipTexture(cw2, ch2);
             positionAndScaleObject2DInScene(x2, 0f, wf2, 1f);
             textureChoice2Program.useProgram();
-            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), alpha, picturesBrightness);
+            textureChoice2Program.setUniforms(modelProjectionMatrix, glPictureChoice2.getTextureId(), alpha, picturesBrightness, picturesContrast);
             glPictureChoice2.bindData(textureChoice2Program);
             glPictureChoice2.draw();
         }

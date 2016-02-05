@@ -169,7 +169,8 @@ public class PictureComparatorFragment extends Fragment {
                 pictureComparatorLayout.setPicturesAlpha(1f);
 //                pictureComparatorLayout.setChoiceMaskAlpha(alpha);
 
-                pictureComparatorLayout.setPicturesBrightness(progress);
+//                pictureComparatorLayout.setPicturesBrightness(progress);
+                pictureComparatorLayout.setPicturesContrast(Utils.map(Math.abs(progress), 0, 1, 1, 4));
 
 //                pictureComparatorLayout.setBackgroundFrameAlpha(1f);
             }
