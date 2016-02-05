@@ -13,6 +13,7 @@ public class ColorShaderProgram extends ShaderProgram {
     private final int uMatrixLocation;
     private final int uColorLocation;
     private final int uAlphaLocation;
+    private final int uBrightnessLocation;
 
     // Attribute locations
     private final int aPositionLocation;
@@ -29,9 +30,12 @@ public class ColorShaderProgram extends ShaderProgram {
             "precision mediump float;\n" +
                     "uniform vec4 u_Color;\n" +
                     "uniform float u_Alpha;\n" +
+                    "uniform float u_Brightness;\n" +
                     "\n" +
                     "void main(){\n" +
-                    "gl_FragColor = u_Color * u_Alpha;\n" +
+                    "vec4 v4Colour = u_Color * u_Alpha;\n" +
+                    "v4Colour.rgb += u_Brightness;\n" +
+                    "gl_FragColor = v4Colour;\n" +
                     "}";
 
 
@@ -44,14 +48,17 @@ public class ColorShaderProgram extends ShaderProgram {
 
         uAlphaLocation = glGetUniformLocation(program, U_ALPHA);
 
+        uBrightnessLocation = glGetUniformLocation(program, U_BRIGHTNESS);
+
         // Retrieve attribute locations for the shader program.
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
     }
 
-    public void setUniforms(float[] matrix, float r, float g, float b, float alpha) {
+    public void setUniforms(float[] matrix, float r, float g, float b, float alpha, float brightness) {
         glUniformMatrix4fv(uMatrixLocation, 1, false, matrix, 0);
         glUniform4f(uColorLocation, r, g, b, 1f);
         glUniform1f(uAlphaLocation, alpha);
+        glUniform1f(uBrightnessLocation, brightness);
     }
 
     public int getPositionAttributeLocation() {

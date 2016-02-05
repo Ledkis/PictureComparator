@@ -746,7 +746,7 @@ public class PictureComparatorRenderer implements Renderer {
                     (float) Color.red(backgroundColor) / 255,
                     (float) Color.green(backgroundColor) / 255,
                     (float) Color.blue(backgroundColor) / 255,
-                    alpha);
+                    alpha, 0f);
             backgroundFrame.bindData(colorShaderProgram);
             backgroundFrame.draw();
         }
@@ -785,7 +785,7 @@ public class PictureComparatorRenderer implements Renderer {
                     (float) Color.red(centerLineColor) / 255,
                     (float) Color.green(centerLineColor) / 255,
                     (float) Color.blue(centerLineColor) / 255,
-                    alpha);
+                    alpha, picturesBrightness);
             centerLine.bindData(colorShaderProgram);
             centerLine.draw();
 
@@ -800,7 +800,7 @@ public class PictureComparatorRenderer implements Renderer {
                     (float) Color.red(choiceMaskColor) / 255,
                     (float) Color.green(choiceMaskColor) / 255,
                     (float) Color.blue(choiceMaskColor) / 255,
-                    alpha);
+                    alpha, 0f);
             choiceMaskFrame.bindData(colorShaderProgram);
             choiceMaskFrame.draw();
         }
@@ -815,7 +815,7 @@ public class PictureComparatorRenderer implements Renderer {
                         (float) Color.red(choice1ProgressRectColor) / 255,
                         (float) Color.green(choice1ProgressRectColor) / 255,
                         (float) Color.blue(choice1ProgressRectColor) / 255,
-                        alpha);
+                        alpha, 0f);
                 choice1ProgressRect.bindData(colorShaderProgram);
                 choice1ProgressRect.draw();
             }
@@ -828,7 +828,7 @@ public class PictureComparatorRenderer implements Renderer {
                         (float) Color.red(choice2ProgressRectColor) / 255,
                         (float) Color.green(choice2ProgressRectColor) / 255,
                         (float) Color.blue(choice2ProgressRectColor) / 255,
-                        alpha);
+                        alpha, 0f);
                 choice2ProgressRect.bindData(colorShaderProgram);
                 choice2ProgressRect.draw();
             }
