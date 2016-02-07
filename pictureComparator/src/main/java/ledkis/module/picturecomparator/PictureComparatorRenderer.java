@@ -314,10 +314,10 @@ public class PictureComparatorRenderer implements Renderer {
             boolean progressRect2Click = Geometry2D.intersects(progressRect2Bounding, p);
 
             if (null != onProgressRectClickCallback) {
-                if (progressRect1Click) {
+                if (progressRect1Click && 0f != choice1ProgressRectAlpha) {
                     onProgressRectClickCallback.onProgressRect1Click();
                 }
-                if (progressRect2Click) {
+                if (progressRect2Click && 0f != choice2ProgressRectAlpha) {
                     onProgressRectClickCallback.onProgressRect2Click();
                 }
             }
